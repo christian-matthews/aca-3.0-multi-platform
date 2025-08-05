@@ -1,0 +1,63 @@
+# Archivos de configuración sensibles
+.env
+*.env
+.env.local
+.env.production
+
+# Virtual environment
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Logs
+*.log
+logs/
+
+# Base de datos local
+*.db
+*.sqlite
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archivos temporales
+*.tmp
+*.temp
+.cache/
+
+# Reportes y archivos generados
+*_report_*.json
+*_inspection_*.json
+database_*.json
+
+# Dependencias y builds
+node_modules/
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
