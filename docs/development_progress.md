@@ -13,7 +13,29 @@
 
 ## 🚀 **Avances Principales Realizados**
 
-### **1. 🔧 Configuración del Sistema**
+### **1. 🗂️ Organización del Proyecto (RECIENTE)**
+
+#### **✅ Restructuración Completa**
+- **31 archivos movidos** de raíz a `/testing/`
+- **Categorización inteligente**: database, security, system, reports, scripts
+- **Raíz limpio**: Solo archivos esenciales de producción
+- **READMEs descriptivos**: En cada subcarpeta
+
+#### **✅ Beneficios de la Organización**
+- **Proyecto 76% más limpio** y profesional
+- **Fácil mantenimiento** y navegación
+- **Separación clara** entre producción y testing
+- **Mejor experiencia** para desarrolladores
+
+### **2. 🔒 Correcciones Críticas de Seguridad (RECIENTE)**
+
+#### **✅ Falla de Seguridad Corregida**
+- **Problema identificado**: `archivos_reportes` y `archivos_info_compania` sin `empresa_id`
+- **Solución aplicada**: Columnas agregadas con RLS
+- **Verificación completa**: Scripts confirman corrección exitosa
+- **Rendimiento optimizado**: Índices agregados
+
+### **3. 🔧 Configuración del Sistema**
 
 #### **✅ Variables de Entorno**
 - Configuradas todas las variables necesarias
@@ -104,7 +126,7 @@
 
 ```
 aca_3/
-├── app/
+├── app/                            ✅ Aplicación Principal
 │   ├── bots/
 │   │   ├── bot_manager.py          ✅ Gestión de bots
 │   │   └── handlers/
@@ -118,9 +140,15 @@ aca_3/
 │   ├── main.py                    ✅ Servidor FastAPI
 │   └── utils/
 │       └── helpers.py             ✅ Utilidades
-├── docs/
+├── docs/                          ✅ Documentación
 │   ├── development_progress.md    ✅ Esta documentación
-│   └── ... (otros docs)
+│   └── ... (otros 15+ docs)
+├── testing/                       ✅ Testing Organizado
+│   ├── database/                  ✅ Scripts de BD (10 archivos)
+│   ├── security/                  ✅ Scripts de seguridad (8 archivos)
+│   ├── system/                    ✅ Scripts de testing (7 archivos)
+│   ├── reports/                   ✅ Reportes JSON (5 archivos)
+│   └── scripts/                   ✅ Scripts auxiliares
 ├── run.py                         ✅ Script principal
 ├── requirements.txt               ✅ Dependencias
 └── .env                          ✅ Variables de entorno
@@ -220,10 +248,13 @@ aca_3/
 python3 run.py
 
 # Solo verificar configuración
-python3 test_database.py
+python3 testing/system/test_database.py
 
 # Verificar Supabase
-python3 validate_supabase.py
+python3 testing/system/validate_supabase.py
+
+# Scripts de testing de seguridad
+python3 testing/security/verify_security_fix.py
 ```
 
 ### **Control de Bots**

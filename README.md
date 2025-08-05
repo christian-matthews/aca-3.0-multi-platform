@@ -65,7 +65,7 @@ python -m app.main
 source venv/bin/activate
 
 # Ejecutar script de pruebas
-python test_database.py
+python testing/system/test_database.py
 ```
 
 ### **Datos de Ejemplo Incluidos**
@@ -118,7 +118,7 @@ Ver documentación completa en `docs/variables.md`
 
 ```
 aca_3/
-├── app/
+├── app/                        # 🚀 Aplicación Principal
 │   ├── main.py                 # Aplicación FastAPI
 │   ├── config.py               # Configuración
 │   ├── database/
@@ -134,9 +134,15 @@ aca_3/
 │   │   └── calendar_service.py # Google Calendar (futuro)
 │   └── utils/
 │       └── helpers.py          # Utilidades
-├── docs/                       # Documentación
-├── test_database.py           # Script de pruebas
+├── docs/                       # 📚 Documentación
+├── testing/                    # 🧪 Testing y Scripts
+│   ├── database/               # Scripts de BD
+│   ├── security/               # Scripts de seguridad
+│   ├── system/                 # Scripts de testing
+│   ├── reports/                # Reportes JSON
+│   └── scripts/                # Scripts auxiliares
 ├── requirements.txt            # Dependencias
+├── run.py                      # Script principal
 └── README.md                  # Este archivo
 ```
 
@@ -190,7 +196,7 @@ curl https://your-app.onrender.com/status
 
 ### Pruebas de Base de Datos
 ```bash
-python test_database.py
+python testing/system/test_database.py
 ```
 
 ## 🐛 Troubleshooting
@@ -250,6 +256,16 @@ Para soporte técnico o preguntas:
 
 ## 🎯 Roadmap
 
+### **📋 Próximos Pasos Inmediatos**
+- [x] ✅ **Organización de proyecto**: Archivos de testing separados en `/testing/`
+- [x] ✅ **Correcciones críticas de seguridad**: empresa_id en tablas de archivos
+- [ ] 📊 **Integración Airtable**: Base 'ACA - Gestión Documental'
+- [ ] 📝 **Integración Notion**: Workspace 'ACA - Empresas'
+- [ ] 💬 **Integración Slack**: Notificaciones y canales por empresa
+- [ ] ⏰ **Automatización**: Jobs de sincronización cada 30 minutos
+- [ ] 🌐 **Dashboard multi-plataforma**: Panel de control centralizado
+
+### **🚀 Desarrollo Futuro**
 - [ ] Implementación completa del Asesor IA
 - [ ] Sistema de agendamiento (Calendly/Google Calendar)
 - [ ] Dashboard web de administración
@@ -257,4 +273,6 @@ Para soporte técnico o preguntas:
 - [ ] Integración con más APIs financieras
 - [ ] Sistema de reportes automáticos
 - [ ] Multiidioma
-- [ ] App móvil nativa 
+- [ ] App móvil nativa
+
+Ver plan detallado en `docs/plan_pasos_especificos_detallados.md` 

@@ -465,7 +465,22 @@ except Exception as e:
 
 1. **Ejecutar el script SQL** en Supabase
 2. **Configurar variables de entorno** con tus credenciales
-3. **Probar la conexión** con el comando de verificación
-4. **Ejecutar la aplicación** y probar los bots
+3. **Probar la conexión** con scripts de testing:
+   ```bash
+   python3 testing/system/test_database.py
+   python3 testing/system/validate_supabase.py
+   ```
+4. **Ejecutar la aplicación** y probar los bots:
+   ```bash
+   python3 run.py
+   ```
+
+## ✅ **Scripts de Verificación Disponibles**
+
+En la carpeta `/testing/` encontrarás scripts organizados para:
+- **Database**: Inspección y análisis de BD
+- **Security**: Verificación de correcciones de seguridad
+- **System**: Testing completo del sistema
+- **Reports**: Reportes JSON de análisis
 
 ¡Con estos datos de ejemplo tendrás un sistema completamente funcional para probar! 🎉 
