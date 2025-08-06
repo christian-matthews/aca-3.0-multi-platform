@@ -121,17 +121,28 @@ class AdminHandlers:
                     parse_mode='Markdown'
                 )
             else:
+                # Intentar obtener información del usuario desde conversaciones previas
+                conversacion_reciente = supabase.table('conversaciones').select('usuario_nombre').eq('chat_id', user_chat_id).limit(1).execute()
+                
+                # Determinar nombre del usuario
+                if conversacion_reciente.data and conversacion_reciente.data[0].get('usuario_nombre'):
+                    nombre_usuario = conversacion_reciente.data[0]['usuario_nombre']
+                else:
+                    nombre_usuario = f'Usuario_{user_chat_id}'  # Nombre por defecto
+                
                 # Crear nuevo usuario
                 resultado = supabase.table('usuarios').insert({
                     'chat_id': user_chat_id,
                     'empresa_id': empresa_id,
                     'activo': True,
-                    'rol': 'user'
+                    'rol': 'user',
+                    'nombre': nombre_usuario
                 }).execute()
                 
                 await update.message.reply_text(
                     f"✅ *Usuario creado exitosamente*\n\n"
                     f"👤 Chat ID: `{user_chat_id}`\n"
+                    f"🏷️ Nombre: {nombre_usuario}\n"
                     f"🏢 Empresa: {empresa.data[0]['nombre']}\n"
                     f"📱 Estado: 🟢 Activo\n\n"
                     f"🎉 El usuario ya puede usar el bot de producción",
