@@ -2,6 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from app.security.auth import security
 from app.database.supabase import supabase
+from app.decorators.conversation_logging import log_production_conversation, log_unauthorized_access
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,6 +11,7 @@ class ProductionHandlers:
     """Manejadores para el bot de producción"""
     
     @staticmethod
+    @log_production_conversation
     async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Comando de inicio para el bot de producción"""
         chat_id = update.effective_chat.id
@@ -18,23 +20,13 @@ class ProductionHandlers:
         validation = security.validate_user(chat_id)
         
         if not validation['valid']:
-            await update.message.reply_text(validation['message'])
+            # Registrar usuario no autorizado antes de responder
+            await ProductionHandlers._handle_unauthorized_user(update, context)
             return
         
         user_data = validation['user_data']
         
-        # Log de conversación (deshabilitado temporalmente por RLS)
-        # try:
-        #     supabase.log_conversation(
-        #         chat_id=chat_id,
-        #         empresa_id=user_data['empresa_id'],
-        #         mensaje="/start",
-        #         respuesta="Menú principal mostrado"
-        #     )
-        # except Exception as e:
-        #     logger.warning(f"Error en logging (RLS): {e}")
-        pass
-        
+        # El logging ahora es automático con el decorador
         await ProductionHandlers._show_main_menu(update.message, user_data)
     
     @staticmethod
@@ -519,6 +511,7 @@ class ProductionHandlers:
         await query.edit_message_text(text, parse_mode='Markdown')
     
     @staticmethod
+    @log_production_conversation
     async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Manejar mensajes de texto del bot de producción"""
         chat_id = update.effective_chat.id
@@ -528,25 +521,26 @@ class ProductionHandlers:
         validation = security.validate_user(chat_id)
         
         if not validation['valid']:
-            await update.message.reply_text(validation['message'])
+            # Registrar usuario no autorizado antes de responder
+            await ProductionHandlers._handle_unauthorized_user(update, context)
             return
         
         user_data = validation['user_data']
         
-        # Log de conversación (deshabilitado temporalmente por RLS)
-        # try:
-        #     supabase.log_conversation(
-        #         chat_id=chat_id,
-        #         empresa_id=user_data['empresa_id'],
-        #         mensaje=message_text,
-        #         respuesta="Mensaje procesado"
-        #     )
-        # except Exception as e:
-        #     logger.warning(f"Error en logging (RLS): {e}")
-        pass
-        
+        # El logging ahora es automático con el decorador
         # Mostrar menú principal
         await ProductionHandlers._show_main_menu(update.message, user_data)
+    
+    @staticmethod
+    @log_unauthorized_access()
+    async def _handle_unauthorized_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Manejar usuarios no autorizados - REGISTRO AUTOMÁTICO"""
+        # El decorador @log_unauthorized_access() se encarga de:
+        # 1. Registrar usuario en usuarios_detalle 
+        # 2. Registrar intento en intentos_acceso_negado
+        # 3. Enviar mensaje explicativo
+        # 4. NO ejecutar lógica adicional (return None)
+        pass
     
     @staticmethod
     async def _handle_ayuda(query, user_data):

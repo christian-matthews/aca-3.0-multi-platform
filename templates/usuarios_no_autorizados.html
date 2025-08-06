@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios No Autorizados - Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">🚫 Usuarios No Autorizados</h1>
+            
+            <!-- Estadísticas rápidas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">⚠️ Total Usuarios</h5>
+                            <h2 class="mb-0" id="totalUnauthorized">--</h2>
+                            <small>Últimos 7 días</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">🚨 Intentos Totales</h5>
+                            <h2 class="mb-0" id="totalAttempts">--</h2>
+                            <small>Suma de intentos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">📱 Usuarios Hoy</h5>
+                            <h2 class="mb-0" id="todayUsers">--</h2>
+                            <small>Intentos de hoy</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">🔒 Bloqueados</h5>
+                            <h2 class="mb-0" id="blockedUsers">--</h2>
+                            <small>Usuarios bloqueados</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros y acciones -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Días hacia atrás</label>
+                            <select class="form-select" id="filterDays">
+                                <option value="7">7 días</option>
+                                <option value="30">30 días</option>
+                                <option value="90">90 días</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Límite</label>
+                            <select class="form-select" id="filterLimit">
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary mt-4" onclick="loadUnauthorizedUsers()">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                            <button class="btn btn-success mt-4" onclick="loadUnauthorizedUsers()">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de usuarios no autorizados -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">👥 Lista de Usuarios No Autorizados</h5>
+                </div>
+                <div class="card-body">
+                    <div id="usersLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando usuarios...</p>
+                    </div>
+                    
+                    <div id="usersTable" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Chat ID</th>
+                                        <th>Intentos</th>
+                                        <th>Mensajes</th>
+                                        <th>Primera Vez</th>
+                                        <th>Última Actividad</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersBody">
+                                    <!-- Contenido dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="usersError" style="display: none;" class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Error:</strong> No se pudieron cargar los usuarios.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para bloquear usuario -->
+<div class="modal fade" id="blockUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🚫 Bloquear Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="blockUserForm">
+                    <input type="hidden" id="blockChatId">
+                    <div class="mb-3">
+                        <label class="form-label">Razón del bloqueo</label>
+                        <select class="form-select" id="blockReason" required>
+                            <option value="">Seleccionar razón...</option>
+                            <option value="spam">Spam/Mensajes masivos</option>
+                            <option value="abuse">Uso abusivo del sistema</option>
+                            <option value="security">Intento de seguridad</option>
+                            <option value="other">Otra razón</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notas adicionales</label>
+                        <textarea class="form-control" id="blockNotes" rows="3" placeholder="Información adicional sobre el bloqueo..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="confirmBlockUser()">
+                    <i class="fas fa-ban"></i> Bloquear Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadUnauthorizedUsers();
+    loadSummaryStats();
+    
+    // Auto-refresh cada 60 segundos
+    setInterval(loadUnauthorizedUsers, 60000);
+});
+
+async function loadSummaryStats() {
+    try {
+        const response = await fetch('/api/conversations/summary');
+        const summary = await response.json();
+        
+        document.getElementById('totalUnauthorized').textContent = summary.semana?.usuarios_no_autorizados || '0';
+        document.getElementById('totalAttempts').textContent = summary.semana?.intentos_totales || '0';
+        document.getElementById('todayUsers').textContent = summary.hoy?.usuarios_no_autorizados || '0';
+        // Para usuarios bloqueados necesitaríamos otro endpoint específico
+        document.getElementById('blockedUsers').textContent = '0';
+        
+    } catch (err) {
+        console.error('Error cargando estadísticas:', err);
+    }
+}
+
+async function loadUnauthorizedUsers() {
+    const loading = document.getElementById('usersLoading');
+    const table = document.getElementById('usersTable');
+    const error = document.getElementById('usersError');
+    
+    // Mostrar loading
+    loading.style.display = 'block';
+    table.style.display = 'none';
+    error.style.display = 'none';
+    
+    try {
+        const days = document.getElementById('filterDays').value;
+        const limit = document.getElementById('filterLimit').value;
+        
+        const response = await fetch(`/api/conversations/unauthorized?days=${days}&limit=${limit}`);
+        const users = await response.json();
+        
+        // Renderizar tabla
+        renderUsersTable(users);
+        
+        // Mostrar tabla
+        loading.style.display = 'none';
+        table.style.display = 'block';
+        
+    } catch (err) {
+        console.error('Error cargando usuarios:', err);
+        loading.style.display = 'none';
+        error.style.display = 'block';
+    }
+}
+
+function renderUsersTable(users) {
+    const tbody = document.getElementById('usersBody');
+    tbody.innerHTML = '';
+    
+    if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center">No hay usuarios no autorizados</td></tr>';
+        return;
+    }
+    
+    users.forEach(user => {
+        const row = document.createElement('tr');
+        
+        // Estado con badge
+        let statusBadge = '';
+        if (user.tipo_acceso === 'bloqueado') {
+            statusBadge = '<span class="badge bg-danger">🚫 Bloqueado</span>';
+        } else {
+            statusBadge = '<span class="badge bg-warning">⚠️ No Autorizado</span>';
+        }
+        
+        // Nivel de riesgo basado en intentos
+        let riskLevel = '';
+        if (user.intentos_acceso > 10) {
+            riskLevel = '<span class="badge bg-danger ms-1">Alto Riesgo</span>';
+        } else if (user.intentos_acceso > 5) {
+            riskLevel = '<span class="badge bg-warning ms-1">Medio Riesgo</span>';
+        }
+        
+        row.innerHTML = `
+            <td>
+                <strong>${user.first_name || ''} ${user.last_name || ''}</strong><br>
+                <small class="text-muted">@${user.username || 'sin_username'}</small>
+            </td>
+            <td><code>${user.chat_id}</code></td>
+            <td>
+                <span class="badge bg-danger">${user.intentos_acceso}</span>
+                ${riskLevel}
+            </td>
+            <td><span class="badge bg-info">${user.total_mensajes}</span></td>
+            <td>${new Date(user.primera_interaccion).toLocaleDateString('es-ES')}</td>
+            <td>${new Date(user.ultima_interaccion).toLocaleString('es-ES')}</td>
+            <td>${statusBadge}</td>
+            <td>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-outline-info" onclick="viewUserAttempts(${user.chat_id})" title="Ver intentos">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    ${user.tipo_acceso !== 'bloqueado' ? `
+                    <button class="btn btn-sm btn-outline-danger" onclick="showBlockModal(${user.chat_id}, '${user.first_name} ${user.last_name}')" title="Bloquear">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+async function viewUserAttempts(chatId) {
+    try {
+        const response = await fetch(`/api/conversations/attempts/${chatId}?days=30`);
+        const attempts = await response.json();
+        
+        let content = '<h6>Intentos de Acceso Recientes:</h6>';
+        if (attempts.length === 0) {
+            content += '<p>No hay intentos registrados.</p>';
+        } else {
+            content += '<div class="table-responsive"><table class="table table-sm">';
+            content += '<thead><tr><th>Fecha</th><th>Mensaje</th><th>Acción</th></tr></thead><tbody>';
+            
+            attempts.slice(0, 10).forEach(attempt => {
+                content += `
+                    <tr>
+                        <td>${new Date(attempt.timestamp).toLocaleString('es-ES')}</td>
+                        <td>${attempt.mensaje_enviado}</td>
+                        <td><code>${attempt.accion_intentada || 'N/A'}</code></td>
+                    </tr>
+                `;
+            });
+            
+            content += '</tbody></table></div>';
+        }
+        
+        // Mostrar en modal
+        document.getElementById('conversationDetails').innerHTML = content;
+        new bootstrap.Modal(document.getElementById('conversationModal')).show();
+        
+    } catch (err) {
+        console.error('Error cargando intentos:', err);
+        alert('Error cargando intentos del usuario');
+    }
+}
+
+function showBlockModal(chatId, userName) {
+    document.getElementById('blockChatId').value = chatId;
+    document.querySelector('#blockUserModal .modal-title').textContent = `🚫 Bloquear Usuario: ${userName}`;
+    new bootstrap.Modal(document.getElementById('blockUserModal')).show();
+}
+
+async function confirmBlockUser() {
+    const chatId = document.getElementById('blockChatId').value;
+    const reason = document.getElementById('blockReason').value;
+    const notes = document.getElementById('blockNotes').value;
+    
+    if (!reason) {
+        alert('Por favor selecciona una razón para el bloqueo');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/conversations/block/${chatId}?reason=${encodeURIComponent(reason)}&admin_notes=${encodeURIComponent(notes)}`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('Usuario bloqueado exitosamente');
+            bootstrap.Modal.getInstance(document.getElementById('blockUserModal')).hide();
+            loadUnauthorizedUsers(); // Recargar tabla
+        } else {
+            alert('Error bloqueando usuario: ' + result.detail);
+        }
+        
+    } catch (err) {
+        console.error('Error bloqueando usuario:', err);
+        alert('Error bloqueando usuario');
+    }
+}
+</script>
+
+<!-- Modal para detalles (reutilizar el del archivo conversaciones.html) -->
+<div class="modal fade" id="conversationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">📄 Detalles de Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="conversationDetails">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

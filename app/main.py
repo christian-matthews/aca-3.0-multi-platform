@@ -15,6 +15,7 @@ from app.utils.helpers import setup_logging
 from app.services.airtable_service import get_airtable_service
 from app.services.sync_service import get_sync_service
 from app.database.supabase import get_supabase_client
+from app.api.conversation_logs import router as conversation_router
 
 # Configurar logging
 setup_logging()
@@ -39,6 +40,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Incluir routers de APIs
+app.include_router(conversation_router)
 
 @app.on_event("startup")
 async def startup_event():
@@ -223,9 +227,13 @@ async def get_dashboard_data() -> Dict[str, Any]:
             tipo = reporte['tipo_reporte'] or 'Sin categoría'
             reportes_por_tipo[tipo] = reportes_por_tipo.get(tipo, 0) + 1
         
-        # Actividad reciente (últimos reportes)
-        reportes_recientes = supabase.table('reportes_mensuales').select('*').order('creado_en', desc=True).limit(5).execute()
+        # Actividad reciente (últimos reportes y conversaciones)
+        reportes_recientes = supabase.table('reportes_mensuales').select('*').order('creado_en', desc=True).limit(3).execute()
+        conversaciones_recientes = supabase.table('vista_conversaciones_recientes').select('*').limit(3).execute()
+        
         recent_activity = []
+        
+        # Agregar reportes recientes
         for reporte in reportes_recientes.data:
             recent_activity.append({
                 'title': reporte['titulo'] or 'Reporte sin título',
@@ -234,6 +242,20 @@ async def get_dashboard_data() -> Dict[str, Any]:
                 'icon': 'file-alt',
                 'color': 'primary'
             })
+        
+        # Agregar conversaciones recientes con chat_id
+        for conv in conversaciones_recientes.data:
+            estado_color = 'success' if conv['estado_usuario'] == 'Autorizado' else 'warning'
+            recent_activity.append({
+                'title': f"💬 Conversación - {conv['usuario_nombre'] or 'Usuario'}",
+                'description': f"Chat ID: {conv['chat_id']} | User ID: {conv.get('user_id', 'N/A')} | Bot: {conv['bot_tipo']}",
+                'time': conv['created_at'][:10] if conv['created_at'] else 'Fecha desconocida',
+                'icon': 'comments',
+                'color': estado_color
+            })
+        
+        # Ordenar por tiempo (más reciente primero)
+        recent_activity.sort(key=lambda x: x['time'], reverse=True)
         
         return {
             'stats': {
@@ -375,6 +397,28 @@ async def dashboard_sync(request: Request):
     except Exception as e:
         logger.error(f"Error en dashboard de sincronización: {e}")
         raise HTTPException(status_code=500, detail="Error cargando sincronización")
+
+@app.get("/dashboard/conversaciones", response_class=HTMLResponse)
+async def dashboard_conversaciones(request: Request):
+    """Vista de conversaciones"""
+    try:
+        return templates.TemplateResponse("conversaciones.html", {
+            "request": request
+        })
+    except Exception as e:
+        logger.error(f"Error en dashboard de conversaciones: {e}")
+        raise HTTPException(status_code=500, detail="Error cargando conversaciones")
+
+@app.get("/dashboard/usuarios-no-autorizados", response_class=HTMLResponse)
+async def dashboard_usuarios_no_autorizados(request: Request):
+    """Vista de usuarios no autorizados"""
+    try:
+        return templates.TemplateResponse("usuarios_no_autorizados.html", {
+            "request": request
+        })
+    except Exception as e:
+        logger.error(f"Error en dashboard de usuarios no autorizados: {e}")
+        raise HTTPException(status_code=500, detail="Error cargando usuarios")
 
 if __name__ == "__main__":
     uvicorn.run(

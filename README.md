@@ -29,6 +29,13 @@ Sistema integral de gestión contable con integración multi-plataforma que incl
 - Sincronización incremental
 - URLs de archivos con renovación automática
 
+### 📊 **Sistema de Logging Completo**
+- Registro de todas las conversaciones de Telegram
+- Detección de usuarios autorizados y no autorizados
+- Dashboard de conversaciones en tiempo real
+- Botones de contacto directo con @wingmanbod
+- Analíticas de uso de bots
+
 ## 🚀 Instalación Rápida
 
 ### Opción 1: Setup Automático (Recomendado)

@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 from app.security.auth import security
 from app.database.supabase import supabase
 from app.config import Config
+from app.decorators.conversation_logging import log_admin_conversation, log_admin_action, log_unauthorized_access
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,12 +12,14 @@ class AdminHandlers:
     """Manejadores para el bot de administración"""
     
     @staticmethod
+    @log_admin_conversation
     async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Comando de inicio para el bot admin"""
         chat_id = update.effective_chat.id
         
         if not security.is_admin(chat_id):
-            await update.message.reply_text("No tienes permisos de administrador.")
+            # Registrar intento no autorizado
+            await AdminHandlers._handle_unauthorized_admin(update, context)
             return
         
         keyboard = [
@@ -33,6 +36,57 @@ class AdminHandlers:
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await AdminHandlers._show_main_menu(update.message)
+    
+    @staticmethod
+    @log_unauthorized_access()
+    async def _handle_unauthorized_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Manejar intentos no autorizados al bot admin"""
+        # Crear botón de contacto directo
+        keyboard = [
+            [InlineKeyboardButton("💬 Contactar a @wingmanbod", url="https://t.me/wingmanbod")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        # El decorador registra automáticamente el intento
+        await update.message.reply_text(
+            "🚫 **Acceso Denegado**\n\n"
+            "No tienes permisos de administrador.\n"
+            "Este incidente ha sido registrado.\n\n"
+            "📞 Para solicitar acceso presiona el botón:",
+            reply_markup=reply_markup
+        )
+    
+    @staticmethod
+    @log_admin_action("crear_empresa")
+    async def crear_empresa_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Comando para crear empresa (con logging automático)"""
+        await update.message.reply_text("🏢 Función de crear empresa en desarrollo...")
+    
+    @staticmethod
+    @log_admin_conversation
+    async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Manejar callbacks del bot admin con logging"""
+        query = update.callback_query
+        await query.answer()
+        
+        if not security.is_admin(query.from_user.id):
+            await AdminHandlers._handle_unauthorized_admin(update, context)
+            return
+        
+        data = query.data
+        
+        if data == "create_empresa":
+            await query.edit_message_text("🏢 Función de crear empresa en desarrollo...")
+        elif data == "list_empresas":
+            await query.edit_message_text("👥 Función de listar empresas en desarrollo...")
+        elif data == "stats":
+            await query.edit_message_text("📈 Función de estadísticas en desarrollo...")
+        elif data == "config":
+            await query.edit_message_text("⚙️ Función de configuración en desarrollo...")
+        elif data == "restart_bots":
+            await query.edit_message_text("🔄 Función de reiniciar bots en desarrollo...")
+        else:
+            await query.edit_message_text("❓ Opción no reconocida")
     
     @staticmethod
     async def _show_main_menu(message_or_query):
