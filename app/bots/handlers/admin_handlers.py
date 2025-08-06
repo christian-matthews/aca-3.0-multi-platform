@@ -8,6 +8,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def escape_markdown(text):
+    """Escapar caracteres especiales para Markdown"""
+    if not text:
+        return text
+    return text.replace('_', '\\_').replace('*', '\\*').replace('[', '\\[').replace(']', '\\]').replace('`', '\\`')
+
 class AdminHandlers:
     """Manejadores para el bot de administración"""
     
@@ -116,7 +122,7 @@ class AdminHandlers:
                 await update.message.reply_text(
                     f"✅ *Usuario actualizado exitosamente*\n\n"
                     f"👤 Chat ID: `{user_chat_id}`\n"
-                    f"🏢 Empresa: {empresa.data[0]['nombre']}\n"
+                    f"🏢 Empresa: {escape_markdown(empresa.data[0]['nombre'])}\n"
                     f"📱 Estado: 🟢 Activo",
                     parse_mode='Markdown'
                 )
@@ -142,8 +148,8 @@ class AdminHandlers:
                 await update.message.reply_text(
                     f"✅ *Usuario creado exitosamente*\n\n"
                     f"👤 Chat ID: `{user_chat_id}`\n"
-                    f"🏷️ Nombre: {nombre_usuario}\n"
-                    f"🏢 Empresa: {empresa.data[0]['nombre']}\n"
+                    f"🏷️ Nombre: {escape_markdown(nombre_usuario)}\n"
+                    f"🏢 Empresa: {escape_markdown(empresa.data[0]['nombre'])}\n"
                     f"📱 Estado: 🟢 Activo\n\n"
                     f"🎉 El usuario ya puede usar el bot de producción",
                     parse_mode='Markdown'
