@@ -58,29 +58,30 @@ def check_dependencies() -> bool:
     print("\n📦 Verificando dependencias...")
     
     required_packages = [
-        "fastapi",
-        "uvicorn", 
-        "jinja2",
-        "python-dotenv",
-        "supabase",
-        "python-telegram-bot",
-        "openai",
-        "pyairtable",
-        "aiofiles"
+        ("fastapi", "fastapi"),
+        ("uvicorn", "uvicorn"), 
+        ("jinja2", "jinja2"),
+        ("python-dotenv", "dotenv"),
+        ("supabase", "supabase"),
+        ("python-telegram-bot", "telegram"),
+        ("openai", "openai"),
+        ("pyairtable", "pyairtable"),
+        ("aiofiles", "aiofiles")
     ]
     
     missing_packages = []
     
-    for package in required_packages:
+    for package_name, import_name in required_packages:
         try:
-            spec = importlib.util.find_spec(package.replace("-", "_"))
+            spec = importlib.util.find_spec(import_name)
             if spec is None:
-                missing_packages.append(package)
+                missing_packages.append(package_name)
+                print(f"❌ {package_name}")
             else:
-                print(f"✅ {package}")
+                print(f"✅ {package_name}")
         except ImportError:
-            missing_packages.append(package)
-            print(f"❌ {package}")
+            missing_packages.append(package_name)
+            print(f"❌ {package_name}")
     
     if missing_packages:
         print(f"\n❌ Paquetes faltantes: {missing_packages}")
