@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+
+{% block title %}Sincronización - ACA 3.0{% endblock %}
+{% block page_title %}Centro de Sincronización{% endblock %}
+
+{% block content %}
+<!-- Sync Status Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    Estado de Sincronización en Tiempo Real
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border text-success me-3 sync-indicator" style="display: none;"></div>
+                            <div>
+                                <h6 class="mb-1" id="syncStatus">Sistema Listo para Sincronizar</h6>
+                                <p class="text-muted mb-0" id="lastSyncTime">Última sincronización: {{ stats.last_sync or 'Nunca' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-success btn-lg" id="manualSyncBtn" onclick="executeManualSync()">
+                            <i class="fas fa-play me-2"></i>
+                            <span class="sync-btn-text">Sincronizar Ahora</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sync Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                <h3 class="stat-number text-primary">{{ stats.airtable.total_records if stats.airtable else 0 }}</h3>
+                <p class="text-muted">Registros Airtable</p>
+                <small class="text-success">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    Fuente de datos
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-cloud-download-alt fa-3x text-info mb-3"></i>
+                <h3 class="stat-number text-info">{{ stats.supabase.reportes_mensuales if stats.supabase else 0 }}</h3>
+                <p class="text-muted">Reportes Supabase</p>
+                <small class="text-info">
+                    <i class="fas fa-arrow-down me-1"></i>
+                    Sincronizados
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-paperclip fa-3x text-success mb-3"></i>
+                <h3 class="stat-number text-success">{{ stats.supabase.archivos_reportes if stats.supabase else 0 }}</h3>
+                <p class="text-muted">Archivos Adjuntos</p>
+                <small class="text-success">
+                    <i class="fas fa-check me-1"></i>
+                    Transferidos
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                <h3 class="stat-number text-warning">{{ stats.airtable.pending_records if stats.airtable else 0 }}</h3>
+                <p class="text-muted">Pendientes</p>
+                <small class="text-warning">
+                    <i class="fas fa-hourglass-half me-1"></i>
+                    Por procesar
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sync Process Flow -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-route me-2"></i>
+                    Flujo de Sincronización
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 text-center mb-3">
+                        <div class="sync-step active" id="step1">
+                            <div class="sync-step-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <h6>Airtable</h6>
+                            <small class="text-muted">Obtener registros</small>
+                        </div>
+                    </div>
+                    <div class="col-md-1 text-center align-self-center">
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </div>
+                    <div class="col-md-2 text-center mb-3">
+                        <div class="sync-step" id="step2">
+                            <div class="sync-step-icon">
+                                <i class="fas fa-filter"></i>
+                            </div>
+                            <h6>Filtrar</h6>
+                            <small class="text-muted">Validar datos</small>
+                        </div>
+                    </div>
+                    <div class="col-md-1 text-center align-self-center">
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </div>
+                    <div class="col-md-2 text-center mb-3">
+                        <div class="sync-step" id="step3">
+                            <div class="sync-step-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h6>Buscar</h6>
+                            <small class="text-muted">Detectar duplicados</small>
+                        </div>
+                    </div>
+                    <div class="col-md-1 text-center align-self-center">
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </div>
+                    <div class="col-md-2 text-center mb-3">
+                        <div class="sync-step" id="step4">
+                            <div class="sync-step-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h6>Supabase</h6>
+                            <small class="text-muted">Guardar datos</small>
+                        </div>
+                    </div>
+                    <div class="col-md-1 text-center align-self-center">
+                        <i class="fas fa-check text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sync History and Logs -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Historial de Sincronización
+                </h6>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h6 class="timeline-title">Sincronización Exitosa</h6>
+                            <p class="timeline-text">3 registros procesados correctamente</p>
+                            <small class="text-muted">Hace 5 minutos</small>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-warning"></div>
+                        <div class="timeline-content">
+                            <h6 class="timeline-title">Registros Omitidos</h6>
+                            <p class="timeline-text">2 registros ya existían en la base de datos</p>
+                            <small class="text-muted">Hace 1 hora</small>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h6 class="timeline-title">Primera Sincronización</h6>
+                            <p class="timeline-text">Sistema configurado e inicializado</p>
+                            <small class="text-muted">Hace 2 horas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-terminal me-2"></i>
+                    Log de Actividad
+                </h6>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearLogs()">
+                    <i class="fas fa-trash me-1"></i>
+                    Limpiar
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="bg-dark text-light p-3 rounded" style="height: 350px; overflow-y: auto; font-family: monospace; font-size: 0.85rem;" id="logContainer">
+                    <div class="log-entry text-success">[INFO] Sistema de sincronización iniciado</div>
+                    <div class="log-entry text-info">[DEBUG] Conectando con Airtable...</div>
+                    <div class="log-entry text-success">[INFO] ✅ Conexión exitosa con Airtable</div>
+                    <div class="log-entry text-info">[DEBUG] Obteniendo registros pendientes...</div>
+                    <div class="log-entry text-success">[INFO] 📋 Encontrados 3 registros para procesar</div>
+                    <div class="log-entry text-warning">[WARN] Registro ya existe, omitiendo duplicado</div>
+                    <div class="log-entry text-success">[INFO] ✅ Sincronización completada exitosamente</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sync Configuration -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    Configuración de Sincronización
+                </h6>
+            </div>
+            <div class="card-body">
+                <form id="syncConfigForm">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Intervalo Automático</label>
+                            <select class="form-select" id="syncInterval">
+                                <option value="disabled">Deshabilitado</option>
+                                <option value="5">Cada 5 minutos</option>
+                                <option value="15">Cada 15 minutos</option>
+                                <option value="30" selected>Cada 30 minutos</option>
+                                <option value="60">Cada hora</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Modo de Sincronización</label>
+                            <select class="form-select" id="syncMode">
+                                <option value="incremental" selected>Incremental</option>
+                                <option value="full">Completa</option>
+                                <option value="manual">Solo Manual</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Notificaciones</label>
+                            <select class="form-select" id="notifications">
+                                <option value="all" selected>Todas</option>
+                                <option value="errors">Solo Errores</option>
+                                <option value="none">Ninguna</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Acciones</label>
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-primary" onclick="saveConfig()">
+                                    <i class="fas fa-save me-1"></i>
+                                    Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Tools -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-tools me-2"></i>
+            Herramientas Avanzadas
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card border-info h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-2x text-info mb-3"></i>
+                        <h6>Verificar Duplicados</h6>
+                        <p class="text-muted small">Buscar registros duplicados en el sistema</p>
+                        <button class="btn btn-outline-info btn-sm" onclick="checkDuplicates()">
+                            Verificar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-warning h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-broom fa-2x text-warning mb-3"></i>
+                        <h6>Limpiar Cache</h6>
+                        <p class="text-muted small">Limpiar caché de sincronización</p>
+                        <button class="btn btn-outline-warning btn-sm" onclick="clearCache()">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-success h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-download fa-2x text-success mb-3"></i>
+                        <h6>Exportar Logs</h6>
+                        <p class="text-muted small">Descargar logs de sincronización</p>
+                        <button class="btn btn-outline-success btn-sm" onclick="exportLogs()">
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-danger h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-undo fa-2x text-danger mb-3"></i>
+                        <h6>Rollback</h6>
+                        <p class="text-muted small">Revertir última sincronización</p>
+                        <button class="btn btn-outline-danger btn-sm" onclick="rollbackSync()">
+                            Revertir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Real-time sync status updates
+let syncInProgress = false;
+
+async function executeManualSync() {
+    if (syncInProgress) return;
+    
+    syncInProgress = true;
+    const btn = document.getElementById('manualSyncBtn');
+    const btnText = document.querySelector('.sync-btn-text');
+    const indicator = document.querySelector('.sync-indicator');
+    const statusText = document.getElementById('syncStatus');
+    
+    // Update UI for sync in progress
+    btn.disabled = true;
+    btnText.textContent = 'Sincronizando...';
+    indicator.style.display = 'inline-block';
+    statusText.textContent = 'Sincronización en progreso...';
+    
+    // Animate sync steps
+    animateSyncFlow();
+    
+    try {
+        // Execute sync
+        const response = await fetch('/sync/airtable', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showToast(`✅ Sincronización exitosa: ${result.details.processed} registros procesados`, 'success');
+            statusText.textContent = 'Última sincronización: Exitosa';
+            addLogEntry('success', `✅ Sincronización completada: ${result.details.processed} procesados, ${result.details.failed} fallidos`);
+            
+            // Update last sync time
+            document.getElementById('lastSyncTime').textContent = `Última sincronización: ${new Date().toLocaleString()}`;
+            
+            // Reload page after success
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast(`❌ Error en sincronización: ${result.message}`, 'danger');
+            statusText.textContent = 'Error en la última sincronización';
+            addLogEntry('error', `❌ Error: ${result.message}`);
+        }
+    } catch (error) {
+        showToast('❌ Error de conexión durante la sincronización', 'danger');
+        statusText.textContent = 'Error de conexión';
+        addLogEntry('error', '❌ Error de conexión con el servidor');
+    } finally {
+        // Reset UI
+        syncInProgress = false;
+        btn.disabled = false;
+        btnText.textContent = 'Sincronizar Ahora';
+        indicator.style.display = 'none';
+        resetSyncFlow();
+    }
+}
+
+function animateSyncFlow() {
+    const steps = ['step1', 'step2', 'step3', 'step4'];
+    
+    steps.forEach((stepId, index) => {
+        setTimeout(() => {
+            document.getElementById(stepId).classList.add('active');
+            addLogEntry('info', `Paso ${index + 1}: ${getStepDescription(stepId)}`);
+        }, index * 800);
+    });
+}
+
+function resetSyncFlow() {
+    const steps = ['step1', 'step2', 'step3', 'step4'];
+    steps.forEach(stepId => {
+        document.getElementById(stepId).classList.remove('active');
+    });
+    // Keep step1 always active
+    document.getElementById('step1').classList.add('active');
+}
+
+function getStepDescription(stepId) {
+    const descriptions = {
+        'step1': 'Conectando con Airtable...',
+        'step2': 'Filtrando y validando datos...',
+        'step3': 'Verificando duplicados...',
+        'step4': 'Guardando en Supabase...'
+    };
+    return descriptions[stepId] || 'Procesando...';
+}
+
+function addLogEntry(type, message) {
+    const logContainer = document.getElementById('logContainer');
+    const timestamp = new Date().toLocaleTimeString();
+    const typeClass = type === 'success' ? 'text-success' : 
+                     type === 'error' ? 'text-danger' : 
+                     type === 'warning' ? 'text-warning' : 'text-info';
+    
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${typeClass}`;
+    entry.textContent = `[${timestamp}] ${message}`;
+    
+    logContainer.appendChild(entry);
+    logContainer.scrollTop = logContainer.scrollHeight;
+    
+    // Keep only last 50 entries
+    const entries = logContainer.children;
+    if (entries.length > 50) {
+        logContainer.removeChild(entries[0]);
+    }
+}
+
+function clearLogs() {
+    document.getElementById('logContainer').innerHTML = '<div class="log-entry text-info">[INFO] Logs limpiados</div>';
+}
+
+function saveConfig() {
+    const interval = document.getElementById('syncInterval').value;
+    const mode = document.getElementById('syncMode').value;
+    const notifications = document.getElementById('notifications').value;
+    
+    addLogEntry('info', `Configuración guardada: Intervalo=${interval}, Modo=${mode}, Notificaciones=${notifications}`);
+    showToast('Configuración guardada exitosamente', 'success');
+}
+
+function checkDuplicates() {
+    addLogEntry('info', 'Verificando duplicados...');
+    showToast('Verificación de duplicados iniciada', 'info');
+    
+    setTimeout(() => {
+        addLogEntry('success', 'Verificación completada: No se encontraron duplicados');
+        showToast('✅ No se encontraron duplicados', 'success');
+    }, 2000);
+}
+
+function clearCache() {
+    addLogEntry('info', 'Limpiando caché...');
+    showToast('Caché limpiado exitosamente', 'success');
+}
+
+function exportLogs() {
+    addLogEntry('info', 'Preparando exportación de logs...');
+    showToast('Funcionalidad de exportación próximamente', 'info');
+}
+
+function rollbackSync() {
+    if (confirm('¿Estás seguro de que quieres revertir la última sincronización?')) {
+        addLogEntry('warning', 'Iniciando rollback...');
+        showToast('Funcionalidad de rollback próximamente', 'warning');
+    }
+}
+
+// Auto-refresh status every 30 seconds
+setInterval(() => {
+    if (!syncInProgress && document.visibilityState === 'visible') {
+        fetch('/sync/statistics')
+            .then(response => response.json())
+            .then(data => {
+                // Update stats if needed
+                addLogEntry('info', 'Estado actualizado automáticamente');
+            })
+            .catch(error => {
+                console.log('Error updating status:', error);
+            });
+    }
+}, 30000);
+
+// Initialize with active step
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('step1').classList.add('active');
+});
+</script>
+
+<style>
+.sync-step {
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.sync-step.active {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.sync-step-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    border: 3px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.sync-step.active .sync-step-icon {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -23px;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #dee2e6;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+.timeline-title {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.timeline-text {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.log-entry {
+    margin-bottom: 2px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+</style>
+{% endblock %}

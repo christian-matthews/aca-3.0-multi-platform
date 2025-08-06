@@ -198,4 +198,8 @@ class SupabaseManager:
             return None
 
 # Instancia global
-supabase = SupabaseManager() 
+supabase = SupabaseManager()
+
+def get_supabase_client() -> SupabaseManager:
+    """Obtener instancia del cliente de Supabase"""
+    return supabase 

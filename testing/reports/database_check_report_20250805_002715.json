@@ -1,0 +1,85 @@
+{
+  "generated_at": "2025-08-05T00:27:15.020842",
+  "summary": {
+    "timestamp": "2025-08-05T00:27:15.020842",
+    "tables_found": 11,
+    "tables_expected": 11,
+    "total_records": 19,
+    "issues": {
+      "critical": 0,
+      "errors": 0,
+      "warnings": 0,
+      "total": 0
+    },
+    "health_score": 85
+  },
+  "tables": {
+    "empresas": {
+      "exists": true,
+      "count": 3,
+      "description": "Información de empresas",
+      "accessible": true
+    },
+    "usuarios": {
+      "exists": true,
+      "count": 4,
+      "description": "Usuarios del sistema",
+      "accessible": true
+    },
+    "conversaciones": {
+      "exists": true,
+      "count": 0,
+      "description": "Historial de conversaciones",
+      "accessible": true
+    },
+    "reportes": {
+      "exists": true,
+      "count": 0,
+      "description": "Reportes disponibles",
+      "accessible": true
+    },
+    "pendientes": {
+      "exists": true,
+      "count": 0,
+      "description": "Tareas pendientes",
+      "accessible": true
+    },
+    "cuentas_cobrar": {
+      "exists": true,
+      "count": 0,
+      "description": "Cuentas por cobrar",
+      "accessible": true
+    },
+    "cuentas_pagar": {
+      "exists": true,
+      "count": 0,
+      "description": "Cuentas por pagar",
+      "accessible": true
+    },
+    "citas": {
+      "exists": true,
+      "count": 0,
+      "description": "Sistema de agendamiento",
+      "accessible": true
+    },
+    "security_logs": {
+      "exists": true,
+      "count": 0,
+      "description": "Logs de seguridad",
+      "accessible": true
+    },
+    "archivos_reportes": {
+      "exists": true,
+      "count": 0,
+      "description": "Archivos de reportes",
+      "accessible": true
+    },
+    "meses_reportes": {
+      "exists": true,
+      "count": 12,
+      "description": "Configuración de meses",
+      "accessible": true
+    }
+  },
+  "issues": []
+}

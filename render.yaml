@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: aca-3-0-backend
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    plan: free
+    region: oregon
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DEBUG
+        value: "false"
+      - key: SUPABASE_URL
+        fromService: supabase
+      - key: SUPABASE_ANON_KEY
+        fromService: supabase
+      - key: TELEGRAM_BOT_TOKEN_ADMIN
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN_PROD
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: AIRTABLE_API_KEY
+        sync: false
+      - key: AIRTABLE_BASE_ID
+        sync: false
+      - key: AIRTABLE_TABLE_NAME
+        sync: false
+      - key: AIRTABLE_VIEW_NAME
+        sync: false
+      - key: GOOGLE_CALENDAR_CREDENTIALS_FILE
+        sync: false
+      - key: CALENDLY_API_TOKEN
+        sync: false
+      - key: SYNC_INTERVAL_MINUTES
+        value: "30"
+      - key: MAX_FILE_SIZE_MB
+        value: "50"
+      - key: AUTO_SYNC_ENABLED
+        value: "true"

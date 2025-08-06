@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Principal - ACA 3.0{% endblock %}
+{% block page_title %}Dashboard Principal{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Empresas
+                        </div>
+                        <div class="stat-number text-primary">{{ stats.empresas }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-building fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Reportes Totales
+                        </div>
+                        <div class="stat-number text-success">{{ stats.reportes }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-alt fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Archivos PDF
+                        </div>
+                        <div class="stat-number text-info">{{ stats.archivos }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-paperclip fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Registros Airtable
+                        </div>
+                        <div class="stat-number text-warning">{{ stats.airtable }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-database fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Cards -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-sync-alt me-2"></i>Estado de Sincronización
+                </h6>
+                <span class="badge {% if sync_status.success %}badge-status bg-success{% else %}badge-status bg-danger{% endif %}">
+                    {% if sync_status.success %}✅ Activo{% else %}❌ Error{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h4 text-success mb-1">{{ sync_status.processed or 0 }}</div>
+                            <div class="small text-muted">Procesados</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="h4 text-danger mb-1">{{ sync_status.failed or 0 }}</div>
+                            <div class="small text-muted">Fallidos</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Última sincronización: {{ sync_status.last_sync or 'Nunca' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-heartbeat me-2"></i>Estado del Sistema
+                </h6>
+                <span class="badge {% if system_status.healthy %}badge-status bg-success{% else %}badge-status bg-warning{% endif %}">
+                    {% if system_status.healthy %}✅ Saludable{% else %}⚠️ Revisar{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-database me-2 {% if system_status.supabase %}text-success{% else %}text-danger{% endif %}"></i>
+                        <span>Supabase: {% if system_status.supabase %}Conectado{% else %}Error{% endif %}</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-table me-2 {% if system_status.airtable %}text-success{% else %}text-danger{% endif %}"></i>
+                        <span>Airtable: {% if system_status.airtable %}Conectado{% else %}Error{% endif %}</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-robot me-2 {% if system_status.telegram %}text-success{% else %}text-danger{% endif %}"></i>
+                        <span>Telegram: {% if system_status.telegram %}Activo{% else %}Inactivo{% endif %}</span>
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-server me-2 {% if system_status.api %}text-success{% else %}text-danger{% endif %}"></i>
+                        <span>API: {% if system_status.api %}Funcionando{% else %}Error{% endif %}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-line me-2"></i>Reportes por Tipo
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="reportesChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-history me-2"></i>Actividad Reciente
+                </h6>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                {% for activity in recent_activity %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <div class="bg-{{ activity.color }} rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                            <i class="fas fa-{{ activity.icon }} text-white small"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="small font-weight-bold">{{ activity.title }}</div>
+                        <div class="small text-muted">{{ activity.description }}</div>
+                        <div class="small text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ activity.time }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if not recent_activity %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <p>No hay actividad reciente</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="/dashboard/empresas" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <i class="fas fa-building fa-2x mb-2"></i>
+                            <span>Ver Empresas</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/dashboard/reportes" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <i class="fas fa-file-alt fa-2x mb-2"></i>
+                            <span>Ver Reportes</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/dashboard/airtable" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <i class="fas fa-database fa-2x mb-2"></i>
+                            <span>Airtable</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button onclick="executeSyncManual()" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                            <i class="fas fa-sync-alt fa-2x mb-2"></i>
+                            <span>Sincronizar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize the reports chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('reportesChart').getContext('2d');
+    
+    const reportesData = {{ reportes_chart_data | tojson }};
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: reportesData.labels,
+            datasets: [{
+                data: reportesData.data,
+                backgroundColor: [
+                    '#3b82f6',  // Blue
+                    '#10b981',  // Green
+                    '#f59e0b',  // Yellow
+                    '#ef4444',  // Red
+                    '#8b5cf6',  // Purple
+                    '#06b6d4'   // Cyan
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

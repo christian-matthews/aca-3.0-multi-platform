@@ -1,0 +1,21 @@
+{
+  "generated_at": "2025-08-05T00:16:25.508129",
+  "database_url": "urredafpvesrvdbcwdnq",
+  "summary": {
+    "total_tables": 0,
+    "total_columns": 0,
+    "total_rows": 0,
+    "total_issues": 0,
+    "critical_issues": 0,
+    "medium_issues": 0,
+    "low_issues": 0
+  },
+  "tables": [],
+  "issues": [],
+  "recommendations": [
+    "✅ Implementar Row Level Security (RLS) en todas las tablas",
+    "📊 Crear índices en columnas empresa_id para optimizar consultas",
+    "🔄 Configurar triggers para actualizar updated_at automáticamente",
+    "🛡️ Revisar permisos y políticas de acceso regularmente"
+  ]
+}

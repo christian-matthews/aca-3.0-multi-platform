@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+
+{% block title %}Archivos - ACA 3.0{% endblock %}
+{% block page_title %}Gestión de Archivos{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-paperclip fa-3x text-primary mb-3"></i>
+                <h3 class="stat-number text-primary">{{ archivos|length }}</h3>
+                <p class="text-muted">Total Archivos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                <h3 class="stat-number text-danger">{{ archivos|selectattr('tipo_archivo', 'equalto', 'application/pdf')|list|length }}</h3>
+                <p class="text-muted">Archivos PDF</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-hdd fa-3x text-info mb-3"></i>
+                <h3 class="stat-number text-info">{{ ((archivos|map(attribute='tamanio_bytes')|select|sum) / 1024 / 1024)|round(1) }}</h3>
+                <p class="text-muted">MB Totales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h3 class="stat-number text-success">{{ archivos|selectattr('activo', 'equalto', true)|list|length }}</h3>
+                <p class="text-muted">Archivos Activos</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Upload Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-cloud-upload-alt me-2"></i>
+            Subir Nuevos Archivos
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="border-dashed border-2 border-secondary rounded p-4 text-center">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                    <h6>Arrastra archivos aquí o haz clic para seleccionar</h6>
+                    <p class="text-muted small">Formatos soportados: PDF, Excel, Word. Tamaño máximo: 50MB</p>
+                    <input type="file" class="form-control d-none" id="fileInput" multiple accept=".pdf,.xlsx,.xls,.doc,.docx">
+                    <button class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>
+                        Seleccionar Archivos
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-light rounded p-3">
+                    <h6>Información de Carga</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li><i class="fas fa-check text-success me-1"></i> Detección automática de tipo</li>
+                        <li><i class="fas fa-check text-success me-1"></i> Validación de archivos</li>
+                        <li><i class="fas fa-check text-success me-1"></i> Respaldo en la nube</li>
+                        <li><i class="fas fa-check text-success me-1"></i> Control de versiones</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>
+            Filtros y Búsqueda
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Buscar archivos</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Nombre de archivo...">
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Tipo de archivo</label>
+                <select class="form-select" id="typeFilter">
+                    <option value="">Todos</option>
+                    <option value="pdf">PDF</option>
+                    <option value="excel">Excel</option>
+                    <option value="word">Word</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Estado</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">Todos</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Tamaño</label>
+                <select class="form-select" id="sizeFilter">
+                    <option value="">Todos</option>
+                    <option value="small">< 1MB</option>
+                    <option value="medium">1-10MB</option>
+                    <option value="large">> 10MB</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Acciones</label>
+                <div class="d-grid">
+                    <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times me-1"></i>Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Files Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-paperclip me-2"></i>
+            Lista de Archivos
+        </h5>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="toggleView('list')" id="listViewBtn">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="toggleView('grid')" id="gridViewBtn">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="downloadSelected()">
+                <i class="fas fa-download me-1"></i>
+                Descargar Seleccionados
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if archivos %}
+        <!-- List View -->
+        <div id="listView">
+            <div class="table-responsive">
+                <table class="table table-hover" id="archivosTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="50">
+                                <input type="checkbox" class="form-check-input" id="selectAll">
+                            </th>
+                            <th><i class="fas fa-file me-1"></i>Archivo</th>
+                            <th><i class="fas fa-tag me-1"></i>Tipo</th>
+                            <th><i class="fas fa-hdd me-1"></i>Tamaño</th>
+                            <th><i class="fas fa-file-alt me-1"></i>Reporte</th>
+                            <th><i class="fas fa-calendar me-1"></i>Subido</th>
+                            <th><i class="fas fa-toggle-on me-1"></i>Estado</th>
+                            <th><i class="fas fa-cogs me-1"></i>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for archivo in archivos %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input file-checkbox" value="{{ archivo.id }}">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        {% if archivo.tipo_archivo == 'application/pdf' %}
+                                        <i class="fas fa-file-pdf text-danger fa-2x"></i>
+                                        {% elif 'excel' in (archivo.tipo_archivo or '') %}
+                                        <i class="fas fa-file-excel text-success fa-2x"></i>
+                                        {% elif 'word' in (archivo.tipo_archivo or '') %}
+                                        <i class="fas fa-file-word text-primary fa-2x"></i>
+                                        {% else %}
+                                        <i class="fas fa-file text-secondary fa-2x"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ archivo.nombre_archivo or 'Sin nombre' }}</div>
+                                        <small class="text-muted">{{ archivo.descripcion or 'Sin descripción' }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark">
+                                    {% if archivo.tipo_archivo == 'application/pdf' %}
+                                    PDF
+                                    {% elif 'excel' in (archivo.tipo_archivo or '') %}
+                                    Excel
+                                    {% elif 'word' in (archivo.tipo_archivo or '') %}
+                                    Word
+                                    {% else %}
+                                    {{ archivo.tipo_archivo or 'Desconocido' }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-end">
+                                    {% if archivo.tamanio_bytes %}
+                                    {% if archivo.tamanio_bytes < 1024 %}
+                                    {{ archivo.tamanio_bytes }} B
+                                    {% elif archivo.tamanio_bytes < 1048576 %}
+                                    {{ (archivo.tamanio_bytes / 1024)|round(1) }} KB
+                                    {% else %}
+                                    {{ (archivo.tamanio_bytes / 1048576)|round(1) }} MB
+                                    {% endif %}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ archivo.reporte_id[:8] if archivo.reporte_id else 'N/A' }}...</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ archivo.created_at.strftime('%d/%m/%Y %H:%M') if archivo.created_at else 'Sin fecha' }}
+                                </small>
+                            </td>
+                            <td>
+                                {% if archivo.activo %}
+                                <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="previewFile('{{ archivo.url_archivo }}')" title="Vista previa">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" onclick="downloadFile('{{ archivo.url_archivo }}', '{{ archivo.nombre_archivo }}')" title="Descargar">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="shareFile('{{ archivo.id }}')" title="Compartir">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="deleteFile('{{ archivo.id }}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Grid View (Hidden by default) -->
+        <div id="gridView" class="d-none">
+            <div class="row">
+                {% for archivo in archivos %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 file-card">
+                        <div class="card-body text-center">
+                            <div class="position-relative">
+                                <input type="checkbox" class="form-check-input position-absolute top-0 start-0 file-checkbox" value="{{ archivo.id }}">
+                                {% if archivo.tipo_archivo == 'application/pdf' %}
+                                <i class="fas fa-file-pdf text-danger" style="font-size: 4rem;"></i>
+                                {% elif 'excel' in (archivo.tipo_archivo or '') %}
+                                <i class="fas fa-file-excel text-success" style="font-size: 4rem;"></i>
+                                {% elif 'word' in (archivo.tipo_archivo or '') %}
+                                <i class="fas fa-file-word text-primary" style="font-size: 4rem;"></i>
+                                {% else %}
+                                <i class="fas fa-file text-secondary" style="font-size: 4rem;"></i>
+                                {% endif %}
+                            </div>
+                            <h6 class="card-title mt-3">{{ archivo.nombre_archivo or 'Sin nombre' }}</h6>
+                            <p class="card-text small text-muted">
+                                {% if archivo.tamanio_bytes %}
+                                {% if archivo.tamanio_bytes < 1048576 %}
+                                {{ (archivo.tamanio_bytes / 1024)|round(1) }} KB
+                                {% else %}
+                                {{ (archivo.tamanio_bytes / 1048576)|round(1) }} MB
+                                {% endif %}
+                                {% else %}
+                                Tamaño desconocido
+                                {% endif %}
+                            </p>
+                            <div class="btn-group btn-group-sm w-100">
+                                <button class="btn btn-outline-primary" onclick="previewFile('{{ archivo.url_archivo }}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-success" onclick="downloadFile('{{ archivo.url_archivo }}', '{{ archivo.nombre_archivo }}')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteFile('{{ archivo.id }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">No hay archivos disponibles</h5>
+            <p class="text-muted">Los archivos aparecerán aquí una vez que se suban o sincronicen desde Airtable.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt me-2"></i>
+                Subir Primer Archivo
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- File Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>
+                    Vista Previa del Archivo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="previewModalBody">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Search and filter functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    filterFiles();
+});
+
+document.getElementById('typeFilter').addEventListener('change', function() {
+    filterFiles();
+});
+
+document.getElementById('statusFilter').addEventListener('change', function() {
+    filterFiles();
+});
+
+document.getElementById('sizeFilter').addEventListener('change', function() {
+    filterFiles();
+});
+
+function filterFiles() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const typeFilter = document.getElementById('typeFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const sizeFilter = document.getElementById('sizeFilter').value;
+    
+    const rows = document.querySelectorAll('#archivosTable tbody tr, #gridView .col-lg-3');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        let show = true;
+        
+        if (searchTerm && !text.includes(searchTerm)) {
+            show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('sizeFilter').value = '';
+    filterFiles();
+}
+
+function toggleView(viewType) {
+    const listView = document.getElementById('listView');
+    const gridView = document.getElementById('gridView');
+    const listBtn = document.getElementById('listViewBtn');
+    const gridBtn = document.getElementById('gridViewBtn');
+    
+    if (viewType === 'grid') {
+        listView.classList.add('d-none');
+        gridView.classList.remove('d-none');
+        listBtn.classList.remove('active');
+        gridBtn.classList.add('active');
+    } else {
+        gridView.classList.add('d-none');
+        listView.classList.remove('d-none');
+        gridBtn.classList.remove('active');
+        listBtn.classList.add('active');
+    }
+}
+
+function previewFile(url) {
+    document.getElementById('previewModalBody').innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando vista previa...</span>
+            </div>
+            <p class="mt-2">Cargando vista previa...</p>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    modal.show();
+    
+    // Simulate loading
+    setTimeout(() => {
+        if (url.includes('.pdf')) {
+            document.getElementById('previewModalBody').innerHTML = `
+                <iframe src="${url}" width="100%" height="600px" frameborder="0">
+                    <p>Tu navegador no soporta la vista previa de PDF. <a href="${url}" target="_blank">Abrir en nueva pestaña</a></p>
+                </iframe>
+            `;
+        } else {
+            document.getElementById('previewModalBody').innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-file fa-4x text-muted mb-3"></i>
+                    <h5>Vista previa no disponible</h5>
+                    <p class="text-muted">Este tipo de archivo no se puede previsualizar en el navegador.</p>
+                    <a href="${url}" target="_blank" class="btn btn-primary">
+                        <i class="fas fa-external-link-alt me-2"></i>
+                        Abrir en nueva pestaña
+                    </a>
+                </div>
+            `;
+        }
+    }, 1000);
+}
+
+function downloadFile(url, filename) {
+    showToast(`Descargando ${filename}...`, 'info');
+    window.open(url, '_blank');
+}
+
+function shareFile(fileId) {
+    showToast('Funcionalidad de compartir próximamente', 'info');
+}
+
+function deleteFile(fileId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
+        showToast('Funcionalidad de eliminación próximamente', 'warning');
+    }
+}
+
+function downloadSelected() {
+    const selected = document.querySelectorAll('.file-checkbox:checked');
+    if (selected.length === 0) {
+        showToast('Selecciona al menos un archivo', 'warning');
+        return;
+    }
+    showToast(`Preparando descarga de ${selected.length} archivo(s)...`, 'info');
+}
+
+// Select all functionality
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.file-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+// File upload handling
+document.getElementById('fileInput').addEventListener('change', function() {
+    const files = this.files;
+    if (files.length > 0) {
+        showToast(`${files.length} archivo(s) seleccionado(s). Funcionalidad de carga próximamente.`, 'info');
+    }
+});
+
+// Initialize list view as active
+document.getElementById('listViewBtn').classList.add('active');
+</script>
+
+<style>
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.file-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.file-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}

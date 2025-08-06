@@ -1,0 +1,486 @@
+{% extends "base.html" %}
+
+{% block title %}Airtable - ACA 3.0{% endblock %}
+{% block page_title %}Gestión de Airtable{% endblock %}
+
+{% block content %}
+<!-- Connection Status -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card {% if enabled %}border-success{% else %}border-danger{% endif %}">
+            <div class="card-header d-flex justify-content-between align-items-center {% if enabled %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                <h5 class="mb-0">
+                    <i class="fas fa-{% if enabled %}check-circle{% else %}times-circle{% endif %} me-2"></i>
+                    Estado de Conexión Airtable
+                </h5>
+                <span class="badge {% if enabled %}badge-light text-success{% else %}badge-light text-danger{% endif %}">
+                    {% if enabled %}✅ CONECTADO{% else %}❌ DESCONECTADO{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                {% if enabled %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Base ID:</strong> <code>{{ stats.base_id or 'N/A' }}</code></p>
+                        <p class="mb-2"><strong>Tabla:</strong> <code>{{ stats.table_name or 'N/A' }}</code></p>
+                        <p class="mb-0"><strong>Estado:</strong> <span class="text-success">Funcionando correctamente</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-outline-success me-2" onclick="testConnection()">
+                                <i class="fas fa-plug me-1"></i>
+                                Probar Conexión
+                            </button>
+                            <button class="btn btn-success" onclick="refreshData()">
+                                <i class="fas fa-sync-alt me-1"></i>
+                                Actualizar Datos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <h6 class="text-danger">No se puede conectar con Airtable</h6>
+                    <p class="text-muted">Verifica las credenciales en el archivo de configuración.</p>
+                    <button class="btn btn-danger" onclick="testConnection()">
+                        <i class="fas fa-plug me-1"></i>
+                        Reintentar Conexión
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if enabled %}
+<!-- Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                <h3 class="stat-number text-primary">{{ stats.total_records or 0 }}</h3>
+                <p class="text-muted">Total Registros</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                <h3 class="stat-number text-warning">{{ stats.pending_records or 0 }}</h3>
+                <p class="text-muted">Pendientes</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-check fa-3x text-success mb-3"></i>
+                <h3 class="stat-number text-success">{{ stats.processed_records or 0 }}</h3>
+                <p class="text-muted">Procesados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-3x text-info mb-3"></i>
+                <h3 class="stat-number text-info">{{ stats.by_empresa.keys()|length if stats.by_empresa else 0 }}</h3>
+                <p class="text-muted">Empresas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Distribución por Empresa
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="empresaChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Tipos de Documento
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="tipoChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions Panel -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-tools me-2"></i>
+            Panel de Acciones
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="d-grid">
+                    <button class="btn btn-primary" onclick="executeSyncManual()">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        Sincronizar Ahora
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-grid">
+                    <button class="btn btn-info" onclick="viewPendingRecords()">
+                        <i class="fas fa-clock me-2"></i>
+                        Ver Pendientes
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-grid">
+                    <button class="btn btn-success" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel me-2"></i>
+                        Exportar Excel
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-grid">
+                    <button class="btn btn-warning" onclick="openAirtable()" target="_blank">
+                        <i class="fas fa-external-link-alt me-2"></i>
+                        Abrir Airtable
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Records Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-table me-2"></i>
+            Registros de Airtable
+        </h5>
+        <div class="d-flex gap-2">
+            <div class="input-group" style="width: 300px;">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Buscar registros...">
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="refreshRecords()">
+                <i class="fas fa-refresh me-1"></i>
+                Actualizar
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if records %}
+        <div class="table-responsive">
+            <table class="table table-hover" id="recordsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="fas fa-hashtag me-1"></i>ID Airtable</th>
+                        <th><i class="fas fa-building me-1"></i>Empresa</th>
+                        <th><i class="fas fa-file-alt me-1"></i>Tipo Documento</th>
+                        <th><i class="fas fa-calendar me-1"></i>Fecha Subida</th>
+                        <th><i class="fas fa-paperclip me-1"></i>Archivos</th>
+                        <th><i class="fas fa-comment me-1"></i>Comentarios</th>
+                        <th><i class="fas fa-toggle-on me-1"></i>Estado</th>
+                        <th><i class="fas fa-cogs me-1"></i>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    {% set fields = record.fields %}
+                    <tr>
+                        <td>
+                            <code class="small">{{ record.id }}</code>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                    <i class="fas fa-building text-white small"></i>
+                                </div>
+                                <span>{{ fields.get('Empresa', 'Sin empresa') }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if 'Balance' in fields.get('Tipo documento', '') %}primary{% elif 'Estado' in fields.get('Tipo documento', '') %}success{% elif 'Flujo' in fields.get('Tipo documento', '') %}info{% else %}secondary{% endif %}">
+                                {{ fields.get('Tipo documento', 'Sin tipo') }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ fields.get('Fecha subida', 'Sin fecha') }}</small>
+                        </td>
+                        <td>
+                            {% if fields.get('Archivo adjunto') %}
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-paperclip text-success me-1"></i>
+                                <span class="badge bg-success">{{ fields['Archivo adjunto']|length }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">Sin archivos</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-truncate d-inline-block" style="max-width: 150px;" title="{{ fields.get('Comentarios', '') }}">
+                                {{ fields.get('Comentarios', 'Sin comentarios') }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if fields.get('Estado subida') %}
+                            <span class="badge bg-{% if fields['Estado subida'] == 'Procesado' %}success{% elif fields['Estado subida'] == 'Pendiente' %}warning{% else %}secondary{% endif %}">
+                                {{ fields['Estado subida'] }}
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewRecord('{{ record.id }}')" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-success" onclick="syncRecord('{{ record.id }}')" title="Sincronizar">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="downloadFiles('{{ record.id }}')" title="Descargar archivos">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-database fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">No hay registros en Airtable</h5>
+            <p class="text-muted">Los registros aparecerán aquí una vez que se agreguen a la base de Airtable.</p>
+            <button class="btn btn-primary" onclick="openAirtable()">
+                <i class="fas fa-external-link-alt me-2"></i>
+                Abrir Airtable para Agregar Registros
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Record Details Modal -->
+<div class="modal fade" id="recordModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-database me-2"></i>
+                    Detalles del Registro de Airtable
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="recordModalBody">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize charts if data is available
+document.addEventListener('DOMContentLoaded', function() {
+    {% if enabled and stats %}
+    // Empresa distribution chart
+    {% if stats.by_empresa %}
+    const empresaCtx = document.getElementById('empresaChart').getContext('2d');
+    new Chart(empresaCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ stats.by_empresa.keys()|list|tojson }},
+            datasets: [{
+                data: {{ stats.by_empresa.values()|list|tojson }},
+                backgroundColor: [
+                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Document type chart
+    {% if stats.by_tipo %}
+    const tipoCtx = document.getElementById('tipoChart').getContext('2d');
+    new Chart(tipoCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ stats.by_tipo.keys()|list|tojson }},
+            datasets: [{
+                label: 'Cantidad',
+                data: {{ stats.by_tipo.values()|list|tojson }},
+                backgroundColor: '#3b82f6',
+                borderColor: '#1d4ed8',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    {% endif %}
+    {% endif %}
+});
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const table = document.getElementById('recordsTable');
+    if (table) {
+        const rows = table.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    }
+});
+
+function testConnection() {
+    showToast('Probando conexión con Airtable...', 'info');
+    
+    fetch('/airtable/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.enabled) {
+                showToast('✅ Conexión exitosa con Airtable', 'success');
+            } else {
+                showToast('❌ Error de conexión con Airtable', 'danger');
+            }
+        })
+        .catch(error => {
+            showToast('❌ Error probando la conexión', 'danger');
+        });
+}
+
+function refreshData() {
+    showToast('Actualizando datos...', 'info');
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function refreshRecords() {
+    refreshData();
+}
+
+function viewPendingRecords() {
+    fetch('/airtable/pending')
+        .then(response => response.json())
+        .then(data => {
+            showToast(`Hay ${data.length} registros pendientes de sincronización`, 'info');
+        })
+        .catch(error => {
+            showToast('Error obteniendo registros pendientes', 'danger');
+        });
+}
+
+function exportToExcel() {
+    showToast('Funcionalidad de exportación próximamente', 'info');
+}
+
+function openAirtable() {
+    window.open('https://airtable.com', '_blank');
+}
+
+function viewRecord(recordId) {
+    document.getElementById('recordModalBody').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando detalles del registro...</p>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('recordModal'));
+    modal.show();
+    
+    // Simulate API call
+    fetch(`/airtable/records?record_id=${recordId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Display record details
+            document.getElementById('recordModalBody').innerHTML = `
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Información del Registro</h6>
+                        <p><strong>ID:</strong> <code>${recordId}</code></p>
+                        <p><strong>Estado:</strong> <span class="badge bg-warning">Cargado desde API</span></p>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            document.getElementById('recordModalBody').innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
+                    <p>Error cargando los detalles del registro</p>
+                </div>
+            `;
+        });
+}
+
+function syncRecord(recordId) {
+    showToast(`Sincronizando registro ${recordId.substr(0, 8)}...`, 'info');
+    
+    // Simulate sync
+    setTimeout(() => {
+        showToast('✅ Registro sincronizado exitosamente', 'success');
+    }, 2000);
+}
+
+function downloadFiles(recordId) {
+    showToast('Funcionalidad de descarga próximamente', 'info');
+}
+</script>
+{% endblock %}

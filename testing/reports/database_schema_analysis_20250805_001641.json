@@ -1,0 +1,974 @@
+{
+  "generated_at": "2025-08-05T00:16:41.973426",
+  "database_info": {
+    "host": "urredafpvesrvdbcwdnq.supabase.co",
+    "database": "postgres",
+    "schema": "public"
+  },
+  "statistics": {
+    "total_tables": 10,
+    "total_columns": 63,
+    "total_rows": 26,
+    "total_relationships": 6,
+    "total_issues": 17,
+    "critical_issues": 5,
+    "medium_issues": 7,
+    "low_issues": 5
+  },
+  "tables": [
+    {
+      "table_name": "empresas",
+      "exists": true,
+      "row_count": 3,
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "varchar",
+          "sample_value": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "is_nullable": false
+        },
+        {
+          "column_name": "rut",
+          "data_type": "varchar",
+          "sample_value": "98765432-1",
+          "is_nullable": false
+        },
+        {
+          "column_name": "nombre",
+          "data_type": "varchar",
+          "sample_value": "Empresa Ejemplo 2 Ltda.",
+          "is_nullable": false
+        },
+        {
+          "column_name": "email",
+          "data_type": "varchar",
+          "sample_value": "info@empresa2.cl",
+          "is_nullable": false
+        },
+        {
+          "column_name": "telefono",
+          "data_type": "varchar",
+          "sample_value": "+56987654321",
+          "is_nullable": false
+        },
+        {
+          "column_name": "direccion",
+          "data_type": "varchar",
+          "sample_value": "Las Condes 456, Santiago",
+          "is_nullable": false
+        },
+        {
+          "column_name": "activo",
+          "data_type": "boolean",
+          "sample_value": "True",
+          "is_nullable": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        }
+      ],
+      "sample_data": [
+        {
+          "id": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "rut": "98765432-1",
+          "nombre": "Empresa Ejemplo 2 Ltda.",
+          "email": "info@empresa2.cl",
+          "telefono": "+56987654321",
+          "direccion": "Las Condes 456, Santiago",
+          "activo": true,
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "f196efa8-eac0-42ea-a414-cc7bcf84d69d",
+          "rut": "11223344-5",
+          "nombre": "Empresa Ejemplo 3 EIRL",
+          "email": "ventas@empresa3.cl",
+          "telefono": "+56911223344",
+          "direccion": "Ñuñoa 789, Santiago",
+          "activo": true,
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "rut": "12345678-9",
+          "nombre": "THE WINGDEMO",
+          "email": "contacto@empresa1.cl",
+          "telefono": "+56912345678",
+          "direccion": "Av. Providencia 123, Santiago",
+          "activo": true,
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:15:49.172554+00:00"
+        }
+      ]
+    },
+    {
+      "table_name": "usuarios",
+      "exists": true,
+      "row_count": 4,
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "varchar",
+          "sample_value": "1fb7a65f-8a5a-46a7-8e06-40ad2dea49ef",
+          "is_nullable": false
+        },
+        {
+          "column_name": "chat_id",
+          "data_type": "integer",
+          "sample_value": "123456789",
+          "is_nullable": false
+        },
+        {
+          "column_name": "empresa_id",
+          "data_type": "varchar",
+          "sample_value": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "is_nullable": false
+        },
+        {
+          "column_name": "nombre",
+          "data_type": "varchar",
+          "sample_value": "Juan Pérez",
+          "is_nullable": false
+        },
+        {
+          "column_name": "email",
+          "data_type": "varchar",
+          "sample_value": "juan@empresa1.cl",
+          "is_nullable": true
+        },
+        {
+          "column_name": "telefono",
+          "data_type": "varchar",
+          "sample_value": "+56912345678",
+          "is_nullable": true
+        },
+        {
+          "column_name": "rol",
+          "data_type": "varchar",
+          "sample_value": "admin",
+          "is_nullable": false
+        },
+        {
+          "column_name": "activo",
+          "data_type": "boolean",
+          "sample_value": "True",
+          "is_nullable": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        }
+      ],
+      "sample_data": [
+        {
+          "id": "1fb7a65f-8a5a-46a7-8e06-40ad2dea49ef",
+          "chat_id": 123456789,
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "nombre": "Juan Pérez",
+          "email": "juan@empresa1.cl",
+          "telefono": "+56912345678",
+          "rol": "admin",
+          "activo": true,
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "212e600a-c8e2-40a3-87bd-fc0efe05ee97",
+          "chat_id": 987654321,
+          "empresa_id": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "nombre": "María González",
+          "email": "maria@empresa2.cl",
+          "telefono": "+56987654321",
+          "rol": "usuario",
+          "activo": true,
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "2f52c4ac-9518-4fc1-a051-7044dffe86c1",
+          "chat_id": 111222333,
+          "empresa_id": "f196efa8-eac0-42ea-a414-cc7bcf84d69d",
+          "nombre": "Carlos López",
+          "email": "carlos@empresa3.cl",
+          "telefono": "+56911122233",
+          "rol": "usuario",
+          "activo": true,
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "ea3cf0e8-eba6-434e-8e4d-5b8fa83e619f",
+          "chat_id": 7580149783,
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "nombre": "WINGMAN ACCOUNT",
+          "email": null,
+          "telefono": null,
+          "rol": "usuario",
+          "activo": true,
+          "created_at": "2025-08-04T14:10:10+00:00",
+          "updated_at": "2025-08-04T14:10:10+00:00"
+        }
+      ]
+    },
+    {
+      "table_name": "conversaciones",
+      "exists": true,
+      "row_count": 4,
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "varchar",
+          "sample_value": "f396ea7f-4751-44a3-8173-1a7d5772d84c",
+          "is_nullable": false
+        },
+        {
+          "column_name": "chat_id",
+          "data_type": "integer",
+          "sample_value": "123456789",
+          "is_nullable": false
+        },
+        {
+          "column_name": "empresa_id",
+          "data_type": "varchar",
+          "sample_value": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "is_nullable": false
+        },
+        {
+          "column_name": "mensaje",
+          "data_type": "varchar",
+          "sample_value": "/start",
+          "is_nullable": false
+        },
+        {
+          "column_name": "respuesta",
+          "data_type": "varchar",
+          "sample_value": "Menú principal mostrado",
+          "is_nullable": false
+        },
+        {
+          "column_name": "tipo",
+          "data_type": "varchar",
+          "sample_value": "comando",
+          "is_nullable": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        }
+      ],
+      "sample_data": [
+        {
+          "id": "f396ea7f-4751-44a3-8173-1a7d5772d84c",
+          "chat_id": 123456789,
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "mensaje": "/start",
+          "respuesta": "Menú principal mostrado",
+          "tipo": "comando",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "174fa662-37d8-4ce7-825d-269f93130031",
+          "chat_id": 123456789,
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "mensaje": "Callback: reportes",
+          "respuesta": "Procesando solicitud",
+          "tipo": "callback",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "af1c09a2-c8eb-4c84-bc05-52675d602527",
+          "chat_id": 987654321,
+          "empresa_id": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "mensaje": "/start",
+          "respuesta": "Menú principal mostrado",
+          "tipo": "comando",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "0014b9e6-be41-495c-a70f-8522243e65af",
+          "chat_id": 111222333,
+          "empresa_id": "f196efa8-eac0-42ea-a414-cc7bcf84d69d",
+          "mensaje": "Callback: pendientes",
+          "respuesta": "Procesando solicitud",
+          "tipo": "callback",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        }
+      ]
+    },
+    {
+      "table_name": "reportes",
+      "exists": true,
+      "row_count": 3,
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "varchar",
+          "sample_value": "39240d1b-2b90-422b-a59f-d2b3a0823475",
+          "is_nullable": false
+        },
+        {
+          "column_name": "empresa_id",
+          "data_type": "varchar",
+          "sample_value": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "is_nullable": false
+        },
+        {
+          "column_name": "titulo",
+          "data_type": "varchar",
+          "sample_value": "Balance General Enero 2024",
+          "is_nullable": false
+        },
+        {
+          "column_name": "descripcion",
+          "data_type": "varchar",
+          "sample_value": "Balance general del primer mes del año",
+          "is_nullable": false
+        },
+        {
+          "column_name": "tipo",
+          "data_type": "varchar",
+          "sample_value": "balance",
+          "is_nullable": false
+        },
+        {
+          "column_name": "url_pdf",
+          "data_type": "text",
+          "sample_value": "https://ejemplo.com/reportes/balance-enero-2024.pdf",
+          "is_nullable": false
+        },
+        {
+          "column_name": "url_excel",
+          "data_type": "nullable",
+          "sample_value": null,
+          "is_nullable": true
+        },
+        {
+          "column_name": "fecha_reporte",
+          "data_type": "varchar",
+          "sample_value": "2024-01-31",
+          "is_nullable": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        }
+      ],
+      "sample_data": [
+        {
+          "id": "39240d1b-2b90-422b-a59f-d2b3a0823475",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "titulo": "Balance General Enero 2024",
+          "descripcion": "Balance general del primer mes del año",
+          "tipo": "balance",
+          "url_pdf": "https://ejemplo.com/reportes/balance-enero-2024.pdf",
+          "url_excel": null,
+          "fecha_reporte": "2024-01-31",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "cc49ab51-285e-45ec-8d91-58e5d4f3ae67",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "titulo": "Estado de Resultados Q1 2024",
+          "descripcion": "Estado de resultados del primer trimestre",
+          "tipo": "resultados",
+          "url_pdf": "https://ejemplo.com/reportes/resultados-q1-2024.pdf",
+          "url_excel": null,
+          "fecha_reporte": "2024-03-31",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "cc4fe634-67d4-4177-90f9-d4326b015fbe",
+          "empresa_id": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "titulo": "Flujo de Caja Febrero 2024",
+          "descripcion": "Análisis del flujo de caja mensual",
+          "tipo": "flujo_caja",
+          "url_pdf": "https://ejemplo.com/reportes/flujo-febrero-2024.pdf",
+          "url_excel": null,
+          "fecha_reporte": "2024-02-29",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        }
+      ]
+    },
+    {
+      "table_name": "pendientes",
+      "exists": true,
+      "row_count": 4,
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "varchar",
+          "sample_value": "b8b68c98-67fa-4bb3-b753-5b4690b51507",
+          "is_nullable": false
+        },
+        {
+          "column_name": "empresa_id",
+          "data_type": "varchar",
+          "sample_value": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "is_nullable": false
+        },
+        {
+          "column_name": "titulo",
+          "data_type": "varchar",
+          "sample_value": "Declaración IVA Marzo",
+          "is_nullable": false
+        },
+        {
+          "column_name": "descripcion",
+          "data_type": "varchar",
+          "sample_value": "Presentar declaración de IVA del mes de marzo",
+          "is_nullable": false
+        },
+        {
+          "column_name": "tipo",
+          "data_type": "varchar",
+          "sample_value": "tributario",
+          "is_nullable": false
+        },
+        {
+          "column_name": "prioridad",
+          "data_type": "varchar",
+          "sample_value": "alta",
+          "is_nullable": false
+        },
+        {
+          "column_name": "fecha_limite",
+          "data_type": "varchar",
+          "sample_value": "2024-04-20",
+          "is_nullable": false
+        },
+        {
+          "column_name": "estado",
+          "data_type": "varchar",
+          "sample_value": "pendiente",
+          "is_nullable": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        }
+      ],
+      "sample_data": [
+        {
+          "id": "b8b68c98-67fa-4bb3-b753-5b4690b51507",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "titulo": "Declaración IVA Marzo",
+          "descripcion": "Presentar declaración de IVA del mes de marzo",
+          "tipo": "tributario",
+          "prioridad": "alta",
+          "fecha_limite": "2024-04-20",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "07941c57-0d19-4053-8587-9f9237cb79a0",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "titulo": "Pago Proveedor ABC",
+          "descripcion": "Pago pendiente a proveedor ABC por servicios",
+          "tipo": "pago",
+          "prioridad": "media",
+          "fecha_limite": "2024-04-15",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "d347a1cc-6876-4639-a1db-3233c28cc6b0",
+          "empresa_id": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "titulo": "Revisión Contratos",
+          "descripcion": "Revisar y actualizar contratos de servicios",
+          "tipo": "administrativo",
+          "prioridad": "baja",
+          "fecha_limite": "2024-04-30",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "295c47c0-5e88-453b-b1ff-5f5c4c99871e",
+          "empresa_id": "f196efa8-eac0-42ea-a414-cc7bcf84d69d",
+          "titulo": "Auditoría Interna",
+          "descripcion": "Realizar auditoría interna de procesos",
+          "tipo": "auditoria",
+          "prioridad": "alta",
+          "fecha_limite": "2024-04-25",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00",
+          "updated_at": "2025-08-05T02:02:54.12564+00:00"
+        }
+      ]
+    },
+    {
+      "table_name": "cuentas_cobrar",
+      "exists": true,
+      "row_count": 4,
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "varchar",
+          "sample_value": "026aa7f5-f696-4c6e-9ffb-c6e7ecbeb151",
+          "is_nullable": false
+        },
+        {
+          "column_name": "empresa_id",
+          "data_type": "varchar",
+          "sample_value": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "is_nullable": false
+        },
+        {
+          "column_name": "cliente",
+          "data_type": "varchar",
+          "sample_value": "Cliente A",
+          "is_nullable": false
+        },
+        {
+          "column_name": "descripcion",
+          "data_type": "varchar",
+          "sample_value": "Servicios de consultoría enero",
+          "is_nullable": false
+        },
+        {
+          "column_name": "monto",
+          "data_type": "numeric",
+          "sample_value": "1500000.0",
+          "is_nullable": false
+        },
+        {
+          "column_name": "fecha_emision",
+          "data_type": "varchar",
+          "sample_value": "2024-01-15",
+          "is_nullable": false
+        },
+        {
+          "column_name": "fecha_vencimiento",
+          "data_type": "varchar",
+          "sample_value": "2024-02-15",
+          "is_nullable": false
+        },
+        {
+          "column_name": "estado",
+          "data_type": "varchar",
+          "sample_value": "pendiente",
+          "is_nullable": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        }
+      ],
+      "sample_data": [
+        {
+          "id": "026aa7f5-f696-4c6e-9ffb-c6e7ecbeb151",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "cliente": "Cliente A",
+          "descripcion": "Servicios de consultoría enero",
+          "monto": 1500000.0,
+          "fecha_emision": "2024-01-15",
+          "fecha_vencimiento": "2024-02-15",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "1504269f-727d-460f-8093-6921a609f573",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "cliente": "Cliente B",
+          "descripcion": "Desarrollo de software",
+          "monto": 2500000.0,
+          "fecha_emision": "2024-02-01",
+          "fecha_vencimiento": "2024-03-01",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "ce008478-a6c3-4562-97ed-971fe2ab3432",
+          "empresa_id": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "cliente": "Cliente C",
+          "descripcion": "Servicios de mantenimiento",
+          "monto": 800000.0,
+          "fecha_emision": "2024-03-10",
+          "fecha_vencimiento": "2024-04-10",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "651dd750-ec17-40dc-a304-bc07e0ed4ab5",
+          "empresa_id": "f196efa8-eac0-42ea-a414-cc7bcf84d69d",
+          "cliente": "Cliente D",
+          "descripcion": "Capacitación personal",
+          "monto": 1200000.0,
+          "fecha_emision": "2024-03-20",
+          "fecha_vencimiento": "2024-04-20",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        }
+      ]
+    },
+    {
+      "table_name": "cuentas_pagar",
+      "exists": true,
+      "row_count": 4,
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "varchar",
+          "sample_value": "87901103-d0a0-462c-be1b-8c135f4e9587",
+          "is_nullable": false
+        },
+        {
+          "column_name": "empresa_id",
+          "data_type": "varchar",
+          "sample_value": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "is_nullable": false
+        },
+        {
+          "column_name": "proveedor",
+          "data_type": "varchar",
+          "sample_value": "Proveedor X",
+          "is_nullable": false
+        },
+        {
+          "column_name": "descripcion",
+          "data_type": "varchar",
+          "sample_value": "Servicios de internet",
+          "is_nullable": false
+        },
+        {
+          "column_name": "monto",
+          "data_type": "numeric",
+          "sample_value": "150000.0",
+          "is_nullable": false
+        },
+        {
+          "column_name": "fecha_emision",
+          "data_type": "varchar",
+          "sample_value": "2024-03-01",
+          "is_nullable": false
+        },
+        {
+          "column_name": "fecha_vencimiento",
+          "data_type": "varchar",
+          "sample_value": "2024-04-01",
+          "is_nullable": false
+        },
+        {
+          "column_name": "estado",
+          "data_type": "varchar",
+          "sample_value": "pendiente",
+          "is_nullable": false
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "varchar",
+          "sample_value": "2025-08-05T02:02:54.12564+00:00",
+          "is_nullable": false
+        }
+      ],
+      "sample_data": [
+        {
+          "id": "87901103-d0a0-462c-be1b-8c135f4e9587",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "proveedor": "Proveedor X",
+          "descripcion": "Servicios de internet",
+          "monto": 150000.0,
+          "fecha_emision": "2024-03-01",
+          "fecha_vencimiento": "2024-04-01",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "e1773291-73dd-4b2b-91a8-418718fd8f86",
+          "empresa_id": "c5d532b5-a667-48c1-9d85-20349e6f2a67",
+          "proveedor": "Proveedor Y",
+          "descripcion": "Suministros de oficina",
+          "monto": 250000.0,
+          "fecha_emision": "2024-03-15",
+          "fecha_vencimiento": "2024-04-15",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "2aa07ff6-297b-4632-99f9-3bcaced98a54",
+          "empresa_id": "d3a7df61-df51-4a1f-b4c7-265acf7f9273",
+          "proveedor": "Proveedor Z",
+          "descripcion": "Servicios de limpieza",
+          "monto": 300000.0,
+          "fecha_emision": "2024-03-20",
+          "fecha_vencimiento": "2024-04-20",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        },
+        {
+          "id": "900bcbe1-29fb-4b2a-8b70-3b2df56321d3",
+          "empresa_id": "f196efa8-eac0-42ea-a414-cc7bcf84d69d",
+          "proveedor": "Proveedor W",
+          "descripcion": "Mantenimiento equipos",
+          "monto": 450000.0,
+          "fecha_emision": "2024-03-25",
+          "fecha_vencimiento": "2024-04-25",
+          "estado": "pendiente",
+          "created_at": "2025-08-05T02:02:54.12564+00:00"
+        }
+      ]
+    },
+    {
+      "table_name": "citas",
+      "exists": true,
+      "row_count": 0,
+      "columns": [],
+      "sample_data": []
+    },
+    {
+      "table_name": "security_logs",
+      "exists": true,
+      "row_count": 0,
+      "columns": [],
+      "sample_data": []
+    },
+    {
+      "table_name": "archivos_reportes",
+      "exists": true,
+      "row_count": 0,
+      "columns": [],
+      "sample_data": []
+    },
+    {
+      "table_name": "meses_reportes",
+      "exists": false,
+      "error": "{'message': 'relation \"public.meses_reportes\" does not exist', 'code': '42P01', 'hint': None, 'details': None}"
+    }
+  ],
+  "relationships": [
+    {
+      "source_table": "usuarios",
+      "source_column": "empresa_id",
+      "target_table": "empresas",
+      "target_column": "id",
+      "relationship_type": "foreign_key",
+      "inferred": true
+    },
+    {
+      "source_table": "conversaciones",
+      "source_column": "empresa_id",
+      "target_table": "empresas",
+      "target_column": "id",
+      "relationship_type": "foreign_key",
+      "inferred": true
+    },
+    {
+      "source_table": "reportes",
+      "source_column": "empresa_id",
+      "target_table": "empresas",
+      "target_column": "id",
+      "relationship_type": "foreign_key",
+      "inferred": true
+    },
+    {
+      "source_table": "pendientes",
+      "source_column": "empresa_id",
+      "target_table": "empresas",
+      "target_column": "id",
+      "relationship_type": "foreign_key",
+      "inferred": true
+    },
+    {
+      "source_table": "cuentas_cobrar",
+      "source_column": "empresa_id",
+      "target_table": "empresas",
+      "target_column": "id",
+      "relationship_type": "foreign_key",
+      "inferred": true
+    },
+    {
+      "source_table": "cuentas_pagar",
+      "source_column": "empresa_id",
+      "target_table": "empresas",
+      "target_column": "id",
+      "relationship_type": "foreign_key",
+      "inferred": true
+    }
+  ],
+  "consistency_issues": [
+    {
+      "type": "missing_timestamp",
+      "severity": "low",
+      "table": "reportes",
+      "description": "Tabla sin columna updated_at"
+    },
+    {
+      "type": "missing_status",
+      "severity": "medium",
+      "table": "reportes",
+      "description": "Tabla sin columna activo para soft delete"
+    },
+    {
+      "type": "missing_status",
+      "severity": "medium",
+      "table": "pendientes",
+      "description": "Tabla sin columna activo para soft delete"
+    },
+    {
+      "type": "missing_timestamp",
+      "severity": "low",
+      "table": "cuentas_cobrar",
+      "description": "Tabla sin columna updated_at"
+    },
+    {
+      "type": "missing_status",
+      "severity": "medium",
+      "table": "cuentas_cobrar",
+      "description": "Tabla sin columna activo para soft delete"
+    },
+    {
+      "type": "missing_timestamp",
+      "severity": "low",
+      "table": "cuentas_pagar",
+      "description": "Tabla sin columna updated_at"
+    },
+    {
+      "type": "missing_status",
+      "severity": "medium",
+      "table": "cuentas_pagar",
+      "description": "Tabla sin columna activo para soft delete"
+    },
+    {
+      "type": "missing_primary_key",
+      "severity": "high",
+      "table": "citas",
+      "description": "Tabla sin columna id (clave primaria)"
+    },
+    {
+      "type": "missing_timestamp",
+      "severity": "medium",
+      "table": "citas",
+      "description": "Tabla sin columna created_at"
+    },
+    {
+      "type": "missing_timestamp",
+      "severity": "low",
+      "table": "citas",
+      "description": "Tabla sin columna updated_at"
+    },
+    {
+      "type": "missing_isolation",
+      "severity": "high",
+      "table": "citas",
+      "description": "Tabla sin empresa_id para aislamiento de datos"
+    },
+    {
+      "type": "missing_status",
+      "severity": "medium",
+      "table": "citas",
+      "description": "Tabla sin columna activo para soft delete"
+    },
+    {
+      "type": "missing_primary_key",
+      "severity": "high",
+      "table": "security_logs",
+      "description": "Tabla sin columna id (clave primaria)"
+    },
+    {
+      "type": "missing_primary_key",
+      "severity": "high",
+      "table": "archivos_reportes",
+      "description": "Tabla sin columna id (clave primaria)"
+    },
+    {
+      "type": "missing_timestamp",
+      "severity": "medium",
+      "table": "archivos_reportes",
+      "description": "Tabla sin columna created_at"
+    },
+    {
+      "type": "missing_timestamp",
+      "severity": "low",
+      "table": "archivos_reportes",
+      "description": "Tabla sin columna updated_at"
+    },
+    {
+      "type": "missing_isolation",
+      "severity": "high",
+      "table": "archivos_reportes",
+      "description": "Tabla sin empresa_id para aislamiento de datos"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "data_integrity",
+      "title": "Resolver problemas críticos de estructura",
+      "description": "Se encontraron problemas que afectan la integridad y seguridad de los datos",
+      "actions": [
+        "Tabla sin columna id (clave primaria)",
+        "Tabla sin empresa_id para aislamiento de datos",
+        "Tabla sin columna id (clave primaria)"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "security",
+      "title": "Implementar aislamiento de datos por empresa",
+      "description": "Algunas tablas no tienen empresa_id para aislamiento de datos",
+      "actions": [
+        "Agregar columna empresa_id a todas las tablas de datos",
+        "Implementar Row Level Security (RLS)",
+        "Crear políticas de acceso por empresa"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "structure",
+      "title": "Mejorar estructura de tablas",
+      "description": "Algunas tablas carecen de elementos estructurales importantes",
+      "actions": [
+        "Agregar claves primarias donde falten",
+        "Implementar timestamps en todas las tablas",
+        "Agregar columnas de estado (activo) para soft delete"
+      ]
+    },
+    {
+      "priority": "low",
+      "category": "maintenance",
+      "title": "Mantenimiento general de base de datos",
+      "description": "Tareas regulares de mantenimiento y monitoreo",
+      "actions": [
+        "Configurar backups automáticos regulares",
+        "Implementar monitoreo de rendimiento",
+        "Documentar todas las relaciones entre tablas",
+        "Establecer convenciones de nomenclatura consistentes"
+      ]
+    }
+  ]
+}

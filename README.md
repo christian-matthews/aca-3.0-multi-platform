@@ -1,278 +1,337 @@
-# ACA 3.0 - Sistema de Bots de Telegram
+# 🚀 ACA 3.0 - Sistema de Gestión Contable Multi-Plataforma
 
-Sistema de bots de Telegram para gestión empresarial con integración a Supabase y OpenAI.
+Sistema integral de gestión contable con integración multi-plataforma que incluye Telegram, Airtable, Supabase y Dashboard Web.
 
-## 🚀 Características
+## ✨ Características Principales
 
-- **Dos Bots de Telegram**: Admin y Producción
-- **Seguridad Robusta**: Validación de usuarios y aislamiento de datos
-- **Base de Datos Supabase**: PostgreSQL con Row Level Security
-- **Asesor IA**: Integración con OpenAI GPT-3.5
-- **Sistema de Agendamiento**: En desarrollo futuro
-- **Logging Completo**: Auditoría de todas las interacciones
-- **Arquitectura Modular**: FastAPI con estructura escalable
+### 🤖 **Bots de Telegram**
+- **Bot Admin**: Gestión administrativa y monitoreo del sistema
+- **Bot Producción**: Acceso para usuarios finales y consultas
 
-## 📋 Requisitos
+### 🌐 **Dashboard Web Completo**
+- **Vista General**: Estadísticas y métricas en tiempo real
+- **Gestión de Empresas**: CRUD completo de empresas
+- **Reportes**: Visualización y gestión de reportes financieros
+- **Archivos**: Gestión de documentos con vista previa
+- **Airtable**: Monitoreo de integración y sincronización
+- **Sincronización**: Centro de control para sync automático
 
-- Python 3.8+
-- Cuenta de Supabase
-- Tokens de bots de Telegram
-- API Key de OpenAI
+### 📊 **Integraciones**
+- **Airtable**: Gestión documental del contador
+- **Supabase**: Base de datos principal con RLS
+- **OpenAI**: Procesamiento inteligente de documentos
+- **Google Calendar**: Agendamiento y recordatorios
+- **Telegram**: Notificaciones y acceso móvil
 
-## 🛠️ Instalación
+### 🔄 **Sincronización Inteligente**
+- Detección automática de duplicados
+- Búsqueda por RUT para mayor confiabilidad
+- Sincronización incremental
+- URLs de archivos con renovación automática
 
-### 1. Clonar el repositorio
+## 🚀 Instalación Rápida
+
+### Opción 1: Setup Automático (Recomendado)
 ```bash
-git clone <repository-url>
-cd aca_3
+python3 setup.py
 ```
 
-### 2. Instalar dependencias
+### Opción 2: Setup Manual
 ```bash
-pip install -r requirements.txt
-```
-
-### 3. Configurar variables de entorno
-```bash
-cp env.example .env
-# Editar .env con tus credenciales
-```
-
-### 4. Configurar base de datos
-Ejecutar el script SQL en Supabase (ver `docs/setup_database.md`)
-
-### 5. Ejecutar la aplicación
-```bash
-python -m app.main
-```
-
-## 🗄️ Configuración de Base de Datos
-
-### **Paso 1: Crear Proyecto en Supabase**
-1. Ve a [supabase.com](https://supabase.com)
-2. Crea una cuenta o inicia sesión
-3. Crea un nuevo proyecto
-4. Anota la URL y las claves
-
-### **Paso 2: Ejecutar Script SQL**
-1. Ve a **SQL Editor** en tu proyecto de Supabase
-2. Copia y ejecuta el script completo de `docs/setup_database.md`
-3. El script creará todas las tablas y datos de ejemplo
-
-### **Paso 3: Verificar Configuración**
-```bash
-# Activar entorno virtual
+# 1. Crear entorno virtual
+python3 -m venv venv
 source venv/bin/activate
 
-# Ejecutar script de pruebas
-python testing/system/test_database.py
+# 2. Instalar dependencias
+pip install -r requirements.txt
+
+# 3. Configurar variables de entorno
+cp env.example .env
+# Editar .env con tus credenciales
+
+# 4. Iniciar sistema
+python3 run.py
 ```
 
-### **Datos de Ejemplo Incluidos**
-- **3 Empresas** con usuarios asociados
-- **Reportes financieros** con enlaces PDF
-- **Pendientes** con diferentes prioridades
-- **Cuentas por cobrar y pagar** con montos reales
-- **Conversaciones** de ejemplo
-
-## 🔧 Configuración
+## ⚙️ Configuración
 
 ### Variables de Entorno Requeridas
 
 ```bash
 # Telegram Bots
-BOT_ADMIN_TOKEN=your_admin_bot_token
-BOT_PRODUCTION_TOKEN=your_production_bot_token
-ADMIN_CHAT_ID=your_admin_chat_id
+BOT_ADMIN_TOKEN=tu_token_de_bot_admin
+BOT_PRODUCTION_TOKEN=tu_token_de_bot_produccion
+ADMIN_CHAT_ID=tu_chat_id_admin
 
 # Supabase
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
+SUPABASE_URL=tu_url_de_supabase
+SUPABASE_KEY=tu_key_de_supabase
+SUPABASE_SERVICE_KEY=tu_service_key
 
 # OpenAI
-OPENAI_API_KEY=your_openai_api_key
+OPENAI_API_KEY=tu_api_key_de_openai
+
+# Airtable
+AIRTABLE_API_KEY=tu_api_key_de_airtable
+AIRTABLE_BASE_ID=tu_base_id
+AIRTABLE_TABLE_NAME=nombre_de_tu_tabla
+AIRTABLE_VIEW_NAME=nombre_de_vista
+
+# Configuración de App
+ENVIRONMENT=development
+DEBUG=true
 ```
 
-### Variables Opcionales (Desarrollo Futuro)
+### Configuración de Airtable
 
+1. **Crear Base en Airtable**:
+   - Crea una nueva base con el nombre "ACA - Gestión Documental"
+   - Agrega una tabla llamada "Reportes_Empresas"
+
+2. **Campos Requeridos**:
+   - `Empresa` (Single line text)
+   - `Fecha subida` (Date)
+   - `Tipo documento` (Single select)
+   - `Archivo adjunto` (Attachment)
+   - `Comentarios` (Long text)
+   - `Estado subida` (Single select): Pendiente, Procesado, Error
+
+3. **Formato Recomendado para Empresa**:
+   ```
+   Nombre de Empresa (RUT)
+   Ejemplo: THE WINGDEMO (12345678-9)
+   ```
+
+## 🌐 Uso del Sistema
+
+### Iniciar el Sistema
 ```bash
-# Calendly (para sistema de agendamiento)
-CALENDLY_API_KEY=your_calendly_api_key
+# Usando script de inicio
+./start.sh
 
-# Google Calendar (alternativa para agendamiento)
-GOOGLE_CALENDAR_CREDENTIALS_FILE=path_to_credentials.json
+# O manualmente
+source venv/bin/activate
+python3 run.py
 ```
 
-Ver documentación completa en `docs/variables.md`
+### Acceder al Dashboard
+- **Dashboard Principal**: http://localhost:8000/dashboard
+- **API Documentation**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
 
-## 📚 Documentación
+### Endpoints Principales
 
-- [Configuración de Base de Datos](docs/setup_database.md)
-- [Esquema de Base de Datos](docs/database_schema.md)
-- [Arquitectura del Sistema](docs/architecture.md)
-- [Variables de Entorno](docs/variables.md)
-- [Estado Actual del Proyecto](docs/current_status.md)
-- [Configuración de Calendly](docs/calendly_setup.md) *(Desarrollo futuro)*
+#### API Core
+- `GET /health` - Estado del sistema
+- `GET /status` - Estado de servicios
+- `GET /docs` - Documentación interactiva
 
-## 🏗️ Estructura del Proyecto
+#### Dashboard Web
+- `GET /dashboard` - Vista principal
+- `GET /dashboard/empresas` - Gestión de empresas
+- `GET /dashboard/reportes` - Gestión de reportes
+- `GET /dashboard/archivos` - Gestión de archivos
+- `GET /dashboard/airtable` - Monitoreo de Airtable
+- `GET /dashboard/sync` - Centro de sincronización
 
+#### Airtable
+- `GET /airtable/status` - Estado de conexión
+- `GET /airtable/records` - Obtener registros
+- `GET /airtable/statistics` - Estadísticas
+- `GET /airtable/pending` - Registros pendientes
+
+#### Sincronización
+- `POST /sync/airtable` - Ejecutar sincronización manual
+- `GET /sync/statistics` - Estadísticas de sincronización
+
+## 🏗️ Arquitectura del Sistema
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Airtable      │◄──►│   FastAPI Core   │◄──►│   Supabase      │
+│  (Contador)     │    │                  │    │ (Base de Datos) │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                    ┌──────────────────┐
+                    │  Dashboard Web   │
+                    │     + Bots       │
+                    │    Telegram      │
+                    └──────────────────┘
+```
+
+### Flujo de Datos
+
+1. **Entrada**: Contador sube documentos a Airtable
+2. **Sincronización**: Sistema detecta nuevos registros
+3. **Procesamiento**: Validación y detección de duplicados
+4. **Almacenamiento**: Datos guardados en Supabase
+5. **Acceso**: Dashboard web y bots Telegram para consultas
+
+## 📊 Funcionalidades por Módulo
+
+### 🗄️ Base de Datos (Supabase)
+- Empresas con RLS por usuario
+- Reportes mensuales categorizados
+- Archivos con URLs seguras
+- Información de compañía
+- Logs de sincronización
+
+### 📋 Gestión Documental (Airtable)
+- Interface amigable para contadores
+- Carga de archivos PDF/Excel
+- Categorización automática
+- Estado de procesamiento
+- Comentarios y notas
+
+### 🤖 Bots de Telegram
+- Comandos administrativos
+- Consultas de empresas y reportes
+- Notificaciones en tiempo real
+- Acceso móvil completo
+
+### 🌐 Dashboard Web
+- Estadísticas en tiempo real
+- Gestión CRUD completa
+- Visualizaciones con gráficos
+- Sistema de filtros avanzado
+- Sincronización manual/automática
+
+## 🛠️ Desarrollo
+
+### Estructura del Proyecto
 ```
 aca_3/
-├── app/                        # 🚀 Aplicación Principal
-│   ├── main.py                 # Aplicación FastAPI
-│   ├── config.py               # Configuración
-│   ├── database/
-│   │   └── supabase.py         # Gestor de Supabase
-│   ├── bots/
-│   │   ├── bot_manager.py      # Gestor de bots
-│   │   └── handlers/           # Manejadores
-│   ├── security/
-│   │   └── auth.py             # Autenticación
-│   ├── services/               # Servicios externos
-│   │   ├── openai_service.py   # OpenAI
-│   │   ├── calendly_service.py # Calendly (futuro)
-│   │   └── calendar_service.py # Google Calendar (futuro)
-│   └── utils/
-│       └── helpers.py          # Utilidades
-├── docs/                       # 📚 Documentación
-├── testing/                    # 🧪 Testing y Scripts
-│   ├── database/               # Scripts de BD
-│   ├── security/               # Scripts de seguridad
-│   ├── system/                 # Scripts de testing
-│   ├── reports/                # Reportes JSON
-│   └── scripts/                # Scripts auxiliares
-├── requirements.txt            # Dependencias
-├── run.py                      # Script principal
-└── README.md                  # Este archivo
+├── app/
+│   ├── bots/                 # Bots de Telegram
+│   ├── database/             # Configuración Supabase
+│   ├── security/             # Autenticación y autorización
+│   ├── services/             # Servicios (Airtable, Sync, etc.)
+│   ├── utils/                # Utilidades
+│   ├── config.py             # Configuración global
+│   └── main.py               # Aplicación FastAPI
+├── templates/                # Plantillas HTML
+├── static/                   # Archivos estáticos
+├── testing/                  # Scripts de testing
+├── docs/                     # Documentación
+├── requirements.txt          # Dependencias Python
+├── setup.py                  # Script de configuración
+├── start.sh                  # Script de inicio
+└── run.py                    # Punto de entrada
 ```
 
-## 🤖 Funcionalidades
-
-### Bot de Administración
-- Crear nuevas empresas
-- Ver estadísticas del sistema
-- Gestionar usuarios
-- Monitorear actividad
-
-### Bot de Producción
-- **Reportes**: Acceso a reportes financieros
-- **Pendientes**: Gestión de tareas pendientes
-- **CxC & CxP**: Cuentas por cobrar y pagar
-- **Asesor IA**: Consultas inteligentes
-- **Agendar**: Sistema de citas *(En desarrollo)*
-- **Salir**: Cerrar sesión
-
-## 🔒 Seguridad
-
-- **Validación de Usuarios**: Verificación en cada interacción
-- **Aislamiento de Datos**: Filtrado por empresa
-- **Row Level Security**: En Supabase
-- **Logging de Auditoría**: Todas las acciones registradas
-- **Sanitización de Inputs**: Protección contra inyección
-
-## 🚀 Despliegue
-
-### Desarrollo Local
+### Comandos de Desarrollo
 ```bash
-python -m app.main
+# Activar entorno
+source venv/bin/activate
+
+# Instalar dependencias de desarrollo
+pip install -r requirements.txt
+
+# Ejecutar tests
+python -m pytest testing/
+
+# Verificar base de datos
+python testing/database/quick_db_check.py
+
+# Test de servicios
+python testing/system/test_system.py
 ```
 
-### Render (Producción)
-1. Conectar repositorio a Render
-2. Configurar variables de entorno
-3. Desplegar automáticamente
-
-## 📊 Monitoreo
-
-### Health Check
+### Testing
 ```bash
-curl https://your-app.onrender.com/health
+# Test completo del sistema
+python testing/system/test_system.py
+
+# Test de Airtable
+python testing/airtable/test_airtable_service.py
+
+# Test de extracción de RUT
+python testing/airtable/test_rut_extraction.py
+
+# Verificación de base de datos
+python testing/database/quick_db_check.py
 ```
 
-### Status
+## 🔧 Solución de Problemas
+
+### Errores Comunes
+
+#### 1. Error de Dependencias
 ```bash
-curl https://your-app.onrender.com/status
+# Reinstalar dependencias
+pip install -r requirements.txt --force-reinstall
 ```
 
-### Pruebas de Base de Datos
+#### 2. Error de Airtable
 ```bash
-python testing/system/test_database.py
+# Verificar credenciales en .env
+AIRTABLE_API_KEY=tu_api_key_aqui
+AIRTABLE_BASE_ID=tu_base_id_aqui
 ```
 
-## 🐛 Troubleshooting
-
-### Variables Faltantes
+#### 3. Error de Supabase
 ```bash
-Error: Variables de entorno faltantes
+# Verificar conexión
+python testing/database/quick_db_check.py
 ```
-**Solución**: Verificar archivo `.env`
 
-### Tokens Inválidos
+#### 4. Error de Telegram
 ```bash
-Error: Invalid token
+# Verificar tokens de bots
+BOT_ADMIN_TOKEN=token_valido
+BOT_PRODUCTION_TOKEN=token_valido
 ```
-**Solución**: Verificar tokens en @BotFather
 
-### Conexión a Supabase
-```bash
-Error: Connection failed
-```
-**Solución**: Verificar URL y claves de Supabase
+### Logs y Monitoreo
+- Logs en tiempo real en `/dashboard/sync`
+- Health check en `/health`
+- Estadísticas en `/sync/statistics`
 
-### Base de Datos Vacía
-```bash
-Error: No data found
-```
-**Solución**: Ejecutar script SQL de `docs/setup_database.md`
+## 📈 Roadmap
 
-## 🤝 Contribución
+### ✅ Completado
+- [x] Integración Airtable completa
+- [x] Dashboard web funcional
+- [x] Bots de Telegram operativos
+- [x] Sincronización por RUT
+- [x] Sistema de duplicados
+- [x] Interface responsive
 
-1. Fork el proyecto
-2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+### 🔄 En Desarrollo
+- [ ] Notion para dashboard ejecutivo
+- [ ] Slack para notificaciones
+- [ ] Calendly para agendamiento
+- [ ] Deploy automático
+- [ ] Asesor IA avanzado
+
+### 🚀 Próximas Funcionalidades
+- [ ] App móvil nativa
+- [ ] API pública con autenticación
+- [ ] Reportes automatizados
+- [ ] Integración con bancos
+- [ ] Machine Learning para categorización
+
+## 👥 Contribución
+
+1. Fork del repositorio
+2. Crear rama de feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit de cambios (`git commit -am 'Agregar nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Crear Pull Request
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
+Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detalles.
 
-## 📞 Soporte
+## 🆘 Soporte
 
-Para soporte técnico o preguntas:
-- Crear issue en GitHub
-- Contactar al administrador del sistema
+- **Issues**: Crear issue en GitHub
+- **Documentación**: Ver `/docs` para guías detalladas
+- **API Docs**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
 
-## 🔄 Changelog
+---
 
-### v1.0.0
-- Sistema base implementado
-- Bots de Telegram funcionales
-- Integración con Supabase
-- Sistema de seguridad implementado
-- Base de datos con datos de ejemplo
-- Documentación completa
-- Preparado para integración futura de calendario
-
-## 🎯 Roadmap
-
-### **📋 Próximos Pasos Inmediatos**
-- [x] ✅ **Organización de proyecto**: Archivos de testing separados en `/testing/`
-- [x] ✅ **Correcciones críticas de seguridad**: empresa_id en tablas de archivos
-- [ ] 📊 **Integración Airtable**: Base 'ACA - Gestión Documental'
-- [ ] 📝 **Integración Notion**: Workspace 'ACA - Empresas'
-- [ ] 💬 **Integración Slack**: Notificaciones y canales por empresa
-- [ ] ⏰ **Automatización**: Jobs de sincronización cada 30 minutos
-- [ ] 🌐 **Dashboard multi-plataforma**: Panel de control centralizado
-
-### **🚀 Desarrollo Futuro**
-- [ ] Implementación completa del Asesor IA
-- [ ] Sistema de agendamiento (Calendly/Google Calendar)
-- [ ] Dashboard web de administración
-- [ ] Notificaciones push
-- [ ] Integración con más APIs financieras
-- [ ] Sistema de reportes automáticos
-- [ ] Multiidioma
-- [ ] App móvil nativa
-
-Ver plan detallado en `docs/plan_pasos_especificos_detallados.md` 
+**ACA 3.0** - Sistema de Gestión Contable Multi-Plataforma
+Desarrollado con ❤️ para simplificar la gestión contable.

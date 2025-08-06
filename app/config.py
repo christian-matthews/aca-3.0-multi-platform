@@ -17,11 +17,23 @@ class Config:
     # OpenAI Configuration
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     
+    # Airtable Configuration
+    AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY")
+    AIRTABLE_BASE_ID = os.getenv("AIRTABLE_BASE_ID")
+    AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME", "ACA - Gestión Documental")
+    AIRTABLE_VIEW_NAME = os.getenv("AIRTABLE_VIEW_NAME", "Grid view")
+    
     # Calendly Configuration (opcional)
     CALENDLY_API_KEY = os.getenv("CALENDLY_API_KEY")
     
     # Google Calendar Configuration (opcional)
     GOOGLE_CALENDAR_CREDENTIALS_FILE = os.getenv("GOOGLE_CALENDAR_CREDENTIALS_FILE")
+    
+    # Sincronización Configuration
+    SYNC_INTERVAL_MINUTES = int(os.getenv("SYNC_INTERVAL_MINUTES", "30"))
+    ENABLE_AUTO_SYNC = os.getenv("ENABLE_AUTO_SYNC", "true").lower() == "true"
+    FILE_STORAGE_MODE = os.getenv("FILE_STORAGE_MODE", "url")
+    MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "50"))
     
     # App Configuration
     ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
