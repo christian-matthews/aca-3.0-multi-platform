@@ -1,12 +1,16 @@
 # 🚀 ACA 3.0 - Sistema de Gestión Contable Multi-Plataforma
 
-Sistema integral de gestión contable con integración multi-plataforma que incluye Telegram, Airtable, Supabase y Dashboard Web.
+> **🟢 SISTEMA COMPLETAMENTE OPERATIVO - Desplegado en Render**
+
+Sistema integral de gestión contable con integración multi-plataforma que incluye Telegram, Airtable, Supabase y Dashboard Web con logging completo de conversaciones.
 
 ## ✨ Características Principales
 
 ### 🤖 **Bots de Telegram**
-- **Bot Admin**: Gestión administrativa y monitoreo del sistema
+- **Bot Admin**: Gestión administrativa, creación de empresas y usuarios
 - **Bot Producción**: Acceso para usuarios finales y consultas
+- **Comando `/adduser`**: Agregar usuarios rápidamente con detección automática de nombres
+- **Logging completo**: Registro de todas las conversaciones autorizadas y no autorizadas
 
 ### 🌐 **Dashboard Web Completo**
 - **Vista General**: Estadísticas y métricas en tiempo real
@@ -15,6 +19,8 @@ Sistema integral de gestión contable con integración multi-plataforma que incl
 - **Archivos**: Gestión de documentos con vista previa
 - **Airtable**: Monitoreo de integración y sincronización
 - **Sincronización**: Centro de control para sync automático
+- **Conversaciones**: Dashboard de logging de todos los usuarios
+- **Usuarios No Autorizados**: Monitoreo de intentos de acceso no permitidos
 
 ### 📊 **Integraciones**
 - **Airtable**: Gestión documental del contador
@@ -30,20 +36,29 @@ Sistema integral de gestión contable con integración multi-plataforma que incl
 - URLs de archivos con renovación automática
 
 ### 📊 **Sistema de Logging Completo**
-- Registro de todas las conversaciones de Telegram
-- Detección de usuarios autorizados y no autorizados
-- Dashboard de conversaciones en tiempo real
-- Botones de contacto directo con @wingmanbod
-- Analíticas de uso de bots
+- Registro de todas las conversaciones de Telegram (autorizadas y no autorizadas)
+- Detección automática de usuarios con/sin permisos
+- Dashboard de conversaciones en tiempo real con Chat ID y User ID
+- Botones de contacto directo con @wingmanbod en mensajes de acceso denegado
+- Analíticas de uso de bots y métricas de interacción
+- Función SQL optimizada para logging (`log_conversacion_simple`)
 
-## 🚀 Instalación Rápida
+## 🚀 Instalación y Deploy
 
-### Opción 1: Setup Automático (Recomendado)
+### 🌐 Deploy en Render (Recomendado para Producción)
+El sistema está desplegado y funcionando en Render:
+- **URL**: https://aca-3-0-backend.onrender.com
+- **Dashboard**: https://aca-3-0-backend.onrender.com/dashboard
+- **Estado**: 🟢 Operativo 24/7
+
+### 💻 Instalación Local
+
+#### Opción 1: Setup Automático (Recomendado)
 ```bash
 python3 setup.py
 ```
 
-### Opción 2: Setup Manual
+#### Opción 2: Setup Manual
 ```bash
 # 1. Crear entorno virtual
 python3 -m venv venv
@@ -140,6 +155,8 @@ python3 run.py
 - `GET /dashboard/archivos` - Gestión de archivos
 - `GET /dashboard/airtable` - Monitoreo de Airtable
 - `GET /dashboard/sync` - Centro de sincronización
+- `GET /dashboard/conversaciones` - Log de conversaciones
+- `GET /dashboard/usuarios-no-autorizados` - Intentos de acceso no autorizados
 
 #### Airtable
 - `GET /airtable/status` - Estado de conexión
@@ -150,6 +167,11 @@ python3 run.py
 #### Sincronización
 - `POST /sync/airtable` - Ejecutar sincronización manual
 - `GET /sync/statistics` - Estadísticas de sincronización
+
+#### Conversation Logging
+- `GET /api/conversations/recent` - Conversaciones recientes
+- `GET /api/conversations/unauthorized` - Usuarios no autorizados
+- `GET /api/conversations/analytics` - Analíticas de conversaciones
 
 ## 🏗️ Arquitectura del Sistema
 
@@ -299,18 +321,23 @@ BOT_PRODUCTION_TOKEN=token_valido
 
 ### ✅ Completado
 - [x] Integración Airtable completa
-- [x] Dashboard web funcional
-- [x] Bots de Telegram operativos
-- [x] Sincronización por RUT
-- [x] Sistema de duplicados
-- [x] Interface responsive
+- [x] Dashboard web funcional con 8 vistas especializadas
+- [x] Bots de Telegram operativos con logging completo
+- [x] Sincronización por RUT con sistema de upsert
+- [x] Sistema de detección de duplicados
+- [x] Interface responsive con Bootstrap 5
+- [x] Deploy en Render con alta disponibilidad
+- [x] Sistema de logging de conversaciones
+- [x] Comando `/adduser` con detección automática de nombres
+- [x] Botones de contacto directo con @wingmanbod
 
 ### 🔄 En Desarrollo
 - [ ] Notion para dashboard ejecutivo
 - [ ] Slack para notificaciones
 - [ ] Calendly para agendamiento
-- [ ] Deploy automático
-- [ ] Asesor IA avanzado
+- [ ] Deploy automático con CI/CD
+- [ ] Asesor IA avanzado con OpenAI
+- [ ] API pública con autenticación JWT
 
 ### 🚀 Próximas Funcionalidades
 - [ ] App móvil nativa
@@ -335,8 +362,10 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detall
 
 - **Issues**: Crear issue en GitHub
 - **Documentación**: Ver `/docs` para guías detalladas
-- **API Docs**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+- **API Docs**: https://aca-3-0-backend.onrender.com/docs
+- **Health Check**: https://aca-3-0-backend.onrender.com/health
+- **Dashboard**: https://aca-3-0-backend.onrender.com/dashboard
+- **Contacto**: @wingmanbod en Telegram
 
 ---
 
