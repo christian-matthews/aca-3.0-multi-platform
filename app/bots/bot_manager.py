@@ -36,6 +36,7 @@ class BotManager:
         # Comandos
         self.admin_app.add_handler(CommandHandler("start", AdminHandlers.start_command))
         self.admin_app.add_handler(CommandHandler("crear_empresa", AdminHandlers.crear_empresa_command))
+        self.admin_app.add_handler(CommandHandler("adduser", AdminHandlers.adduser_command))
         
         # Callbacks
         self.admin_app.add_handler(CallbackQueryHandler(AdminHandlers.handle_callback))

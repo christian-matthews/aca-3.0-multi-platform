@@ -28,6 +28,10 @@ class AdminHandlers:
                 InlineKeyboardButton("👥 Ver Empresas", callback_data="list_empresas")
             ],
             [
+                InlineKeyboardButton("➕ Agregar Usuario", callback_data="add_user"),
+                InlineKeyboardButton("📋 Ver Usuarios", callback_data="list_users")
+            ],
+            [
                 InlineKeyboardButton("📈 Estadísticas", callback_data="stats"),
                 InlineKeyboardButton("⚙️ Configuración", callback_data="config")
             ],
@@ -63,6 +67,92 @@ class AdminHandlers:
         await update.message.reply_text("🏢 Función de crear empresa en desarrollo...")
     
     @staticmethod
+    @log_admin_action("adduser")
+    async def adduser_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Comando para agregar usuario: /adduser CHAT_ID EMPRESA_ID"""
+        chat_id = update.effective_chat.id
+        
+        if not security.is_admin(chat_id):
+            await update.message.reply_text("🚫 No tienes permisos de administrador.")
+            return
+        
+        # Verificar argumentos
+        if len(context.args) != 2:
+            await update.message.reply_text(
+                "❌ *Formato incorrecto*\n\n"
+                "Usa: `/adduser CHAT_ID EMPRESA_ID`\n\n"
+                "*Ejemplo*: `/adduser 123456789 uuid-empresa`\n\n"
+                "💡 Consejo: Ve al dashboard de usuarios no autorizados para obtener los Chat IDs",
+                parse_mode='Markdown'
+            )
+            return
+        
+        try:
+            user_chat_id = int(context.args[0])
+            empresa_id = context.args[1]
+            
+            # Verificar que la empresa existe
+            empresa = supabase.table('empresas').select('*').eq('id', empresa_id).execute()
+            if not empresa.data:
+                await update.message.reply_text(
+                    f"❌ *Empresa no encontrada*\n\n"
+                    f"ID: `{empresa_id}`\n\n"
+                    "Usa `/empresas` para ver empresas disponibles",
+                    parse_mode='Markdown'
+                )
+                return
+            
+            # Verificar si el usuario ya existe
+            usuario_existente = supabase.table('usuarios').select('*').eq('chat_id', user_chat_id).execute()
+            
+            if usuario_existente.data:
+                # Actualizar usuario existente
+                resultado = supabase.table('usuarios').update({
+                    'empresa_id': empresa_id,
+                    'activo': True,
+                    'updated_at': 'now()'
+                }).eq('chat_id', user_chat_id).execute()
+                
+                await update.message.reply_text(
+                    f"✅ *Usuario actualizado exitosamente*\n\n"
+                    f"👤 Chat ID: `{user_chat_id}`\n"
+                    f"🏢 Empresa: {empresa.data[0]['nombre']}\n"
+                    f"📱 Estado: 🟢 Activo",
+                    parse_mode='Markdown'
+                )
+            else:
+                # Crear nuevo usuario
+                resultado = supabase.table('usuarios').insert({
+                    'chat_id': user_chat_id,
+                    'empresa_id': empresa_id,
+                    'activo': True,
+                    'rol': 'user'
+                }).execute()
+                
+                await update.message.reply_text(
+                    f"✅ *Usuario creado exitosamente*\n\n"
+                    f"👤 Chat ID: `{user_chat_id}`\n"
+                    f"🏢 Empresa: {empresa.data[0]['nombre']}\n"
+                    f"📱 Estado: 🟢 Activo\n\n"
+                    f"🎉 El usuario ya puede usar el bot de producción",
+                    parse_mode='Markdown'
+                )
+            
+        except ValueError:
+            await update.message.reply_text(
+                "❌ *Chat ID inválido*\n\n"
+                "El Chat ID debe ser un número.\n"
+                "Ejemplo: `123456789`",
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.error(f"Error agregando usuario: {e}")
+            await update.message.reply_text(
+                f"❌ *Error al agregar usuario*\n\n"
+                f"Error: {str(e)}"
+            )
+    
+    @staticmethod
     @log_admin_conversation
     async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Manejar callbacks del bot admin con logging"""
@@ -78,13 +168,19 @@ class AdminHandlers:
         if data == "create_empresa":
             await query.edit_message_text("🏢 Función de crear empresa en desarrollo...")
         elif data == "list_empresas":
-            await query.edit_message_text("👥 Función de listar empresas en desarrollo...")
+            await AdminHandlers._list_empresas(query)
+        elif data == "add_user":
+            await AdminHandlers._start_add_user_flow(query)
+        elif data == "list_users":
+            await AdminHandlers._list_users(query)
         elif data == "stats":
-            await query.edit_message_text("📈 Función de estadísticas en desarrollo...")
+            await AdminHandlers._show_stats(query)
         elif data == "config":
             await query.edit_message_text("⚙️ Función de configuración en desarrollo...")
         elif data == "restart_bots":
             await query.edit_message_text("🔄 Función de reiniciar bots en desarrollo...")
+        elif data == "back_to_menu":
+            await AdminHandlers._show_main_menu(query)
         else:
             await query.edit_message_text("❓ Opción no reconocida")
     
@@ -379,4 +475,98 @@ class AdminHandlers:
             
         except Exception as e:
             logger.error(f"Error reiniciando bots: {e}")
-            await query.edit_message_text("Error reiniciando bots.") 
+            await query.edit_message_text("Error reiniciando bots.")
+    
+    @staticmethod
+    async def _list_empresas(query):
+        """Listar empresas registradas"""
+        try:
+            empresas = supabase.table('empresas').select('*').limit(10).execute()
+            
+            if not empresas.data:
+                await query.edit_message_text(
+                    "📋 *Lista de Empresas*\n\n❌ No hay empresas registradas",
+                    parse_mode='Markdown'
+                )
+                return
+            
+            texto = "📋 *Lista de Empresas*\n\n"
+            for empresa in empresas.data:
+                texto += f"🏢 **{empresa['nombre']}**\n"
+                texto += f"📍 RUT: {empresa.get('rut', 'N/A')}\n"
+                texto += f"🆔 ID: `{empresa['id']}`\n\n"
+            
+            keyboard = [[InlineKeyboardButton("🔙 Volver", callback_data="back_to_menu")]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(texto, reply_markup=reply_markup, parse_mode='Markdown')
+            
+        except Exception as e:
+            logger.error(f"Error listando empresas: {e}")
+            await query.edit_message_text("❌ Error al cargar empresas")
+    
+    @staticmethod
+    async def _start_add_user_flow(query):
+        """Iniciar proceso de agregar usuario"""
+        await query.edit_message_text(
+            "➕ *Agregar Nuevo Usuario*\n\n"
+            "Para agregar un usuario rápido:\n\n"
+            "1. Ve al dashboard de conversaciones no autorizadas\n"
+            "2. Copia el Chat ID del usuario\n"
+            "3. Usa el comando: `/adduser CHAT_ID EMPRESA_ID`\n\n"
+            "🔗 Dashboard: https://aca-3-0-backend.onrender.com/dashboard/usuarios-no-autorizados\n\n"
+            "*Ejemplo*: `/adduser 123456789 uuid-empresa`",
+            parse_mode='Markdown',
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Volver", callback_data="back_to_menu")]])
+        )
+    
+    @staticmethod  
+    async def _list_users(query):
+        """Listar usuarios registrados"""
+        try:
+            usuarios = supabase.table('usuarios').select('*, empresas(nombre)').limit(10).execute()
+            
+            if not usuarios.data:
+                await query.edit_message_text("📋 *Lista de Usuarios*\n\n❌ No hay usuarios registrados", parse_mode='Markdown')
+                return
+            
+            texto = "📋 *Lista de Usuarios*\n\n"
+            for usuario in usuarios.data:
+                empresa_nombre = usuario.get('empresas', {}).get('nombre', 'Sin empresa') if usuario.get('empresas') else 'Sin empresa'
+                estado = "🟢 Activo" if usuario.get('activo') else "🔴 Inactivo"
+                
+                texto += f"👤 Chat ID: `{usuario['chat_id']}`\n🏢 {empresa_nombre}\n📱 {estado}\n\n"
+            
+            keyboard = [[InlineKeyboardButton("🔙 Volver", callback_data="back_to_menu")]]
+            await query.edit_message_text(texto, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+            
+        except Exception as e:
+            logger.error(f"Error listando usuarios: {e}")
+            await query.edit_message_text("❌ Error al cargar usuarios")
+    
+    @staticmethod
+    async def _show_stats(query):
+        """Mostrar estadísticas del sistema"""
+        try:
+            from datetime import datetime
+            
+            empresas_count = supabase.table('empresas').select('id', count='exact').execute()
+            usuarios_count = supabase.table('usuarios').select('id', count='exact').execute()
+            conversaciones_count = supabase.table('conversaciones').select('id', count='exact').execute()
+            
+            hoy = datetime.now().date().isoformat()
+            conversaciones_hoy = supabase.table('conversaciones').select('id', count='exact').gte('created_at', hoy).execute()
+            
+            texto = f"📈 *Estadísticas del Sistema*\n\n"
+            texto += f"🏢 Empresas: {empresas_count.count}\n"
+            texto += f"👥 Usuarios: {usuarios_count.count}\n"
+            texto += f"💬 Conversaciones: {conversaciones_count.count}\n"
+            texto += f"📅 Hoy: {conversaciones_hoy.count}\n\n"
+            texto += f"🕐 Actualizado: {datetime.now().strftime('%H:%M:%S')}"
+            
+            keyboard = [[InlineKeyboardButton("🔙 Volver", callback_data="back_to_menu")]]
+            await query.edit_message_text(texto, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+            
+        except Exception as e:
+            logger.error(f"Error estadísticas: {e}")
+            await query.edit_message_text("❌ Error al cargar estadísticas") 

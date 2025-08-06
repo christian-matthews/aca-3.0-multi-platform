@@ -16,6 +16,8 @@ services:
         fromService: supabase
       - key: SUPABASE_ANON_KEY
         fromService: supabase
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: TELEGRAM_BOT_TOKEN_ADMIN
         sync: false
       - key: TELEGRAM_BOT_TOKEN_PROD
