@@ -215,9 +215,12 @@ class AirtableService:
         Returns:
             True si se actualizó correctamente
         """
+        # Formato de fecha compatible con Airtable (YYYY-MM-DD)
+        fecha_procesado = datetime.now().strftime('%Y-%m-%d')
+        
         fields = {
             'Estado subida': 'Procesado',
-            'Fecha procesado': datetime.now().isoformat()
+            'Fecha procesado': fecha_procesado
         }
         
         if supabase_id:
