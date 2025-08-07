@@ -23,6 +23,10 @@ class Config:
     AIRTABLE_TABLE_NAME = os.getenv("AIRTABLE_TABLE_NAME", "ACA - Gestión Documental")
     AIRTABLE_VIEW_NAME = os.getenv("AIRTABLE_VIEW_NAME", "Grid view")
     
+    # Notion Configuration
+    NOTION_TOKEN = os.getenv("NOTION_TOKEN")
+    NOTION_DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
+    
     # Calendly Configuration (opcional)
     CALENDLY_API_KEY = os.getenv("CALENDLY_API_KEY")
     

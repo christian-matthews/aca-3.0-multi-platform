@@ -7,6 +7,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def escape_markdown(text):
+    """Escapar caracteres especiales para Markdown"""
+    if not text:
+        return text
+    return text.replace('_', '\\_').replace('*', '\\*').replace('[', '\\[').replace(']', '\\]').replace('`', '\\`')
+
 class ProductionHandlers:
     """Manejadores para el bot de producción"""
     
@@ -49,7 +55,7 @@ class ProductionHandlers:
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        text = f"👋 **Bienvenido {user_data.get('nombre', 'Usuario')}**\n\nSelecciona una opción del menú:"
+        text = f"👋 **Bienvenido {escape_markdown(user_data.get('nombre', 'Usuario'))}**\n\nSelecciona una opción del menú:"
         
         # Si es un CallbackQuery, usar edit_message_text
         if hasattr(message_or_query, 'edit_message_text'):
